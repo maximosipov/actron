@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu 04 Jul 2013 08:36:17 BST
+EESchema Schematic File Version 2  date Thu 04 Jul 2013 09:44:05 BST
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -41,7 +41,7 @@ encoding utf-8
 Sheet 1 2
 Title "Actron activity monitor"
 Date "4 jul 2013"
-Rev "1"
+Rev "2"
 Comp "Maxim Osipov"
 Comment1 "Licensed under CC-BY-SA 3.0"
 Comment2 "http://creativecommons.org/licenses/by-sa/3.0/"
