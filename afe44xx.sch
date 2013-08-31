@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Thu 04 Jul 2013 09:44:05 BST
+EESchema Schematic File Version 2  date Wed 17 Jul 2013 09:29:23 BST
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -33,7 +33,6 @@ LIBS:opendous
 LIBS:SparkFun
 LIBS:psigns
 LIBS:flexibity
-LIBS:actron-cache
 EELAYER 25  0
 EELAYER END
 $Descr A4 11700 8267
