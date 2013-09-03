@@ -42,17 +42,34 @@
 							<tool id="com.freescale.arm.cdt.toolchain.compiler.2134505145" name="ARM Compiler" superClass="com.freescale.arm.cdt.toolchain.compiler">
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.input.userIncludes.36979109" name="Include User Search Paths (-i)" superClass="com.freescale.arm.cdt.toolchain.armCpp.input.userIncludes" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Project_Headers&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/btstack/chipset-cc256x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/btstack/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/driver&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/app&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${MCUToolsBaseDir}/ARM_EABI_Support/ewl/EWL_C/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/i2c&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/class&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/btstack&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/btstack/board/example&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/btstack/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/kinetis&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProcessorExpertPath}/lib/Kinetis/iofiles&quot;"/>
 								</option>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.exceptions.1224342345" name="Enable Exceptions" superClass="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.exceptions" value="false" valueType="boolean"/>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.optimization.mode.1086016994" name="Speed vs. Size" superClass="com.freescale.arm.cdt.toolchain.armCpp.optimization.mode" value="com.freescale.arm.cdt.toolchain.armCpp.optimization.mode.space" valueType="enumerated"/>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.gcc.909173248" name="Enable GCC Extensions" superClass="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.gcc" value="true" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384.adjusted.1794156646" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384" value="false" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.1473991454" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384.adjusted.411188358" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384" value="false" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384.adjusted.392407786" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384" value="false" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384.adjusted.379093495" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.805907384" value="false" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.1093688889" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.574679029" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.472649643" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.1823292958" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.1423634559" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530.adjusted.711329775" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.969857530" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
 								<inputType id="com.freescale.arm.cdt.toolchain.armCpp.cSource.482729233" name="ARM C/C++ Compiler" superClass="com.freescale.arm.cdt.toolchain.armCpp.cSource"/>
 							</tool>
 							<tool id="com.freescale.arm.cdt.toolchain.assembler.1697379424" name="ARM Assembler" superClass="com.freescale.arm.cdt.toolchain.assembler">
