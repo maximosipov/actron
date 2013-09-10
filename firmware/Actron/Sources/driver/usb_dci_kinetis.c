@@ -226,7 +226,7 @@ static void USB_Bus_Reset_Handler (void)
 	g_trf_direction = USB_TRF_UNKNOWN;
 
 	USB0_CTL &= ~USB_CTL_ODDRST_MASK;
-	USB0_USBTRC0 |= 0x40;             /* attach CFv1 core to USB bus */
+//	USB0_USBTRC0 |= 0x40;             /* attach CFv1 core to USB bus */
 
 	USB0_ERREN = ERR_ENB_ENABLE_ALL;   /* Enable All Error Interrupts */
 	USB0_INTEN = INTENB_BUS_RESET_VAL; /* Enable All Interrupts except RESUME */
@@ -444,7 +444,7 @@ uint_8 USB_DCI_Init (
     g_trf_direction = USB_TRF_UNKNOWN;
 
     /* Asynchronous Resume Interrupt Enable */
-    USB0_USBTRC0 |= 0x40;
+//    USB0_USBTRC0 |= 0x40;
 
     if(bVregEn)
     {
@@ -541,7 +541,7 @@ uint_8 USB_DCI_DeInit(void)
 	
 #else
 	/* Detach CFv1 core to USB bus*/
-	USB0_USBTRC0 &= ~0x40;
+//	USB0_USBTRC0 &= ~0x40;
 #endif
 
 	

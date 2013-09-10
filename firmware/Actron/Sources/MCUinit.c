@@ -84,33 +84,74 @@ void __init_hardware(void)
 	WDOG_UNLOCK  = (uint16_t)0xD928U;    /* Key 2 */
 	/* WDOG_STCTRLH: DISTESTWDOG=0,BYTESEL=0,TESTSEL=0,TESTWDOG=0,WAITEN=1,STOPEN=1,DBGEN=0,ALLOWUPDATE=1,WINEN=0,IRQRSTEN=0,CLKSRC=1,WDOGEN=0 */
 	WDOG_STCTRLH = (uint16_t)0x01D2U;                  
+
 	/* System clock initialization */
 	/* SIM_SCGC5: PORTA=1 */
 	SIM_SCGC5 |= (uint32_t)0x0200UL;     /* Enable clock gate for ports to enable pin routing */
 	/* SIM_CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 */
-	SIM_CLKDIV1 = (uint32_t)0x00110000UL; /* Update system prescalers */
-	/* SIM_SOPT2: PLLFLLSEL=0 */
-	SIM_SOPT2 &= (uint32_t)~0x00030000UL; /* Select FLL clock as a clock source for various peripherals */
-	/* SIM_SOPT1: OSC32KSEL&=~2 */
-	SIM_SOPT1 &= (uint32_t)~0x00080000UL; /* System oscillator drives 32 kHz clock for various peripherals */
-	/* Switch to FEI Mode */
-	/* MCG_C1: CLKS=0,FRDIV=0,IREFS=1,IRCLKEN=1,IREFSTEN=0 */
-	MCG_C1 = (uint8_t)0x06U;                             
-	/* MCG_C2: LOCRE0=0,RANGE0=0,HGO0=0,EREFS0=0,LP=0,IRCS=0 */
-	MCG_C2 = (uint8_t)0x00U;                             
-	/* MCG_C4: DMX32=0,DRST_DRS=0 */
-	MCG_C4 &= (uint8_t)~(uint8_t)0xE0U;                           
-	/* OSC0_CR: ERCLKEN=0,EREFSTEN=0,SC2P=0,SC4P=0,SC8P=0,SC16P=0 */
-	OSC0_CR = (uint8_t)0x00U;                             
+	SIM_CLKDIV1 = (uint32_t)0x00010000UL; /* Update system prescalers */
+	/* SIM_SOPT2: USBSRC=1,PLLFLLSEL=1 */
+	SIM_SOPT2 &= (uint32_t)~0x00010000UL; /* Select PLL as a clock source for various peripherals */
+	/* SIM_SOPT1: OSC32KSEL=0 */
+	SIM_SOPT1 &= (uint32_t)~0x000C0000UL; /* System oscillator drives 32 kHz clock for various peripherals */
+
+	/* PORTA_PCR18: ISF=0,MUX=0 */
+	PORTA_PCR18 &= (uint32_t)~0x01000700UL;
+	/* PORTA_PCR19: ISF=0,MUX=0 */
+	PORTA_PCR19 &= (uint32_t)~0x01000700UL;
+
+	/* Switch to FBE Mode */
+	/* OSC_CR: ERCLKEN=0,EREFSTEN=0,SC2P=0,SC4P=1,SC8P=1,SC16P=0 */
+	OSC0_CR = (uint8_t)0x06U;
 	/* MCG_C7: OSCSEL=0 */
-	MCG_C7 &= (uint8_t)~(uint8_t)0x01U;                           
-	/* MCG_C5: PLLCLKEN0=0,PLLSTEN0=0,PRDIV0=0 */
-	MCG_C5 = (uint8_t)0x00U;                             
+	MCG_C7 &= (uint8_t)~(uint8_t)0x01U;
+	/* MCG_C2: LOCRE0=0,RANGE0=2,HGO0=0,EREFS0=1,LP=0,IRCS=0 */
+	MCG_C2 = (uint8_t)0x24U;
+	/* MCG_C1: CLKS=2,FRDIV=5,IREFS=0,IRCLKEN=1,IREFSTEN=0 */
+	MCG_C1 = (uint8_t)0xAAU;
+	/* MCG_C4: DMX32=0,DRST_DRS=0 */
+	MCG_C4 &= (uint8_t)~(uint8_t)0xE0U;
+	/* MCG_C5: PLLCLKEN0=0,PLLSTEN0=0,PRDIV0=0x0B */
+	MCG_C5 = (uint8_t)0x0BU;
 	/* MCG_C6: LOLIE0=0,PLLS=0,CME0=0,VDIV0=0 */
-	MCG_C6 = (uint8_t)0x00U;             /* 3 */
-	while((MCG_S & MCG_S_IREFST_MASK) == 0x00U) { /* Check that the source of the FLL reference clock is the internal reference clock. */
+	MCG_C6 = (uint8_t)0x00U;
+	while((MCG_S & MCG_S_OSCINIT0_MASK) == 0x00U) { /* Check that the oscillator is running */
 	}
-	while((MCG_S & 0x0CU) != 0x00U) {    /* Wait until output of the FLL is selected */
+	while((MCG_S & MCG_S_IREFST_MASK) != 0x00U) { /* Check that the source of the FLL reference clock is the external reference clock. */
+	}
+	while((MCG_S & 0x0CU) != 0x08U) {    /* Wait until external reference clock is selected as MCG output */
+	}
+	/* Switch to PBE Mode */
+	/* OSC_CR: ERCLKEN=0,EREFSTEN=0,SC2P=0,SC4P=1,SC8P=1,SC16P=0 */
+	OSC0_CR = (uint8_t)0x06U;
+	/* MCG_C7: OSCSEL=0 */
+	MCG_C7 &= (uint8_t)~(uint8_t)0x01U;
+	/* MCG_C1: CLKS=2,FRDIV=5,IREFS=0,IRCLKEN=1,IREFSTEN=0 */
+	MCG_C1 = (uint8_t)0xAAU;
+	/* MCG_C2: LOCRE0=0,RANGE0=2,HGO0=0,EREFS0=1,LP=0,IRCS=0 */
+	MCG_C2 = (uint8_t)0x24U;
+	/* MCG_C5: PLLCLKEN0=0,PLLSTEN0=0,PRDIV0=0x0B */
+	MCG_C5 = (uint8_t)0x0BU;
+	/* MCG_C6: LOLIE0=0,PLLS=1,CME0=0,VDIV0=0 */
+	MCG_C6 = (uint8_t)0x40U;
+	while((MCG_S & 0x0CU) != 0x08U) {    /* Wait until external reference clock is selected as MCG output */
+	}
+	while((MCG_S & MCG_S_LOCK0_MASK) == 0x00U) { /* Wait until locked */
+	}
+	/* Switch to PEE Mode */
+	/* OSC_CR: ERCLKEN=0,EREFSTEN=0,SC2P=0,SC4P=1,SC8P=1,SC16P=0 */
+	OSC0_CR = (uint8_t)0x06U; // do we need internal caps???
+	/* MCG_C7: OSCSEL=0 */
+	MCG_C7 &= (uint8_t)~(uint8_t)0x01U;
+	/* MCG_C1: CLKS=0,FRDIV=5,IREFS=0,IRCLKEN=1,IREFSTEN=0 */
+	MCG_C1 = (uint8_t)0x2AU;
+	/* MCG_C2: LOCRE0=0,RANGE0=2,HGO0=0,EREFS0=1,LP=0,IRCS=0 */
+	MCG_C2 = (uint8_t)0x24U;
+	/* MCG_C5: PLLCLKEN0=0,PLLSTEN0=0,PRDIV0=0x0B */
+	MCG_C5 = (uint8_t)0x0BU;
+	/* MCG_C6: LOLIE0=0,PLLS=1,CME0=0,VDIV0=0 */
+	MCG_C6 = (uint8_t)0x40U;
+	while((MCG_S & 0x0CU) != 0x0CU) {    /* Wait until output of the PLL is selected */
 	}
 }
 
@@ -127,11 +168,13 @@ void MCU_init(void)
 	/* Initialization of the SIM module */
 	/* PORTA_PCR4: ISF=0,MUX=7 */
 	PORTA_PCR4 = (uint32_t)((PORTA_PCR4 & (uint32_t)~0x01000000UL) | (uint32_t)0x0700UL);
+
 	/* Initialization of the RCM module */
 	/* RCM_RPFW: RSTFLTSEL=0 */
 	RCM_RPFW &= (uint8_t)~(uint8_t)0x1FU;                           
 	/* RCM_RPFC: RSTFLTSS=0,RSTFLTSRW=0 */
-	RCM_RPFC &= (uint8_t)~(uint8_t)0x07U;                           
+	RCM_RPFC &= (uint8_t)~(uint8_t)0x07U;
+
 	/* Initialization of the PMC module */
 	/* PMC_REGSC: ACKISO=0,BGBE=0 */
 	PMC_REGSC &= (uint8_t)~(uint8_t)0x09U;                           
@@ -164,6 +207,65 @@ PE_ISR(isr_default)
 	/* Write your interrupt code here ... */
 }
 /* end of isr_default */
+
+PE_ISR(UNASSIGNED_ISR3) {}
+PE_ISR(UNASSIGNED_ISR4) {}
+PE_ISR(UNASSIGNED_ISR5) {}
+PE_ISR(UNASSIGNED_ISR6) {}
+PE_ISR(UNASSIGNED_ISR7) {}
+PE_ISR(UNASSIGNED_ISR8) {}
+PE_ISR(UNASSIGNED_ISR9) {}
+PE_ISR(UNASSIGNED_ISR10) {}
+PE_ISR(UNASSIGNED_ISR11) {}
+PE_ISR(UNASSIGNED_ISR12) {}
+PE_ISR(UNASSIGNED_ISR13) {}
+PE_ISR(UNASSIGNED_ISR14) {}
+PE_ISR(UNASSIGNED_ISR15) {}
+PE_ISR(UNASSIGNED_ISR16) {}
+PE_ISR(UNASSIGNED_ISR17) {}
+PE_ISR(UNASSIGNED_ISR18) {}
+PE_ISR(UNASSIGNED_ISR19) {}
+PE_ISR(UNASSIGNED_ISR20) {}
+PE_ISR(UNASSIGNED_ISR21) {}
+PE_ISR(UNASSIGNED_ISR22) {}
+PE_ISR(UNASSIGNED_ISR23) {}
+PE_ISR(UNASSIGNED_ISR24) {}
+PE_ISR(UNASSIGNED_ISR25) {}
+PE_ISR(UNASSIGNED_ISR26) {}
+PE_ISR(UNASSIGNED_ISR27) {}
+PE_ISR(UNASSIGNED_ISR28) {}
+PE_ISR(UNASSIGNED_ISR29) {}
+PE_ISR(UNASSIGNED_ISR30) {}
+PE_ISR(UNASSIGNED_ISR31) {}
+PE_ISR(UNASSIGNED_ISR32) {}
+PE_ISR(UNASSIGNED_ISR33) {}
+PE_ISR(UNASSIGNED_ISR34) {}
+PE_ISR(UNASSIGNED_ISR35) {}
+PE_ISR(UNASSIGNED_ISR36) {}
+PE_ISR(UNASSIGNED_ISR37) {}
+PE_ISR(UNASSIGNED_ISR38) {}
+PE_ISR(UNASSIGNED_ISR39) {}
+PE_ISR(UNASSIGNED_ISR40) {}
+PE_ISR(UNASSIGNED_ISR41) {}
+PE_ISR(UNASSIGNED_ISR42) {}
+PE_ISR(UNASSIGNED_ISR43) {}
+PE_ISR(UNASSIGNED_ISR44) {}
+PE_ISR(UNASSIGNED_ISR45) {}
+PE_ISR(UNASSIGNED_ISR46) {}
+PE_ISR(UNASSIGNED_ISR47) {}
+PE_ISR(UNASSIGNED_ISR48) {}
+PE_ISR(UNASSIGNED_ISR49) {}
+PE_ISR(UNASSIGNED_ISR50) {}
+PE_ISR(UNASSIGNED_ISR51) {}
+PE_ISR(UNASSIGNED_ISR52) {}
+PE_ISR(UNASSIGNED_ISR53) {}
+PE_ISR(UNASSIGNED_ISR54) {}
+PE_ISR(UNASSIGNED_ISR55) {}
+PE_ISR(UNASSIGNED_ISR56) {}
+PE_ISR(UNASSIGNED_ISR57) {}
+PE_ISR(UNASSIGNED_ISR58) {}
+PE_ISR(UNASSIGNED_ISR59) {}
+PE_ISR(UNASSIGNED_ISR60) {}
 
 
 /*
@@ -207,64 +309,64 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
 		{
 				(tIsrFunc)&__thumb_startup,                             /* 1 (0x00000004) (prior: -) */
 				(tIsrFunc)&isrINT_NMI,                                  /* 2 (0x00000008) (prior: -2) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 3 (0x0000000C) (prior: -1) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 4 (0x00000010) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 5 (0x00000014) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 6 (0x00000018) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 7 (0x0000001C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 8 (0x00000020) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 9 (0x00000024) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 10 (0x00000028) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 11 (0x0000002C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 12 (0x00000030) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 13 (0x00000034) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 14 (0x00000038) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 15 (0x0000003C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 16 (0x00000040) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 17 (0x00000044) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 18 (0x00000048) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 19 (0x0000004C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 20 (0x00000050) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 21 (0x00000054) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 22 (0x00000058) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 23 (0x0000005C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 24 (0x00000060) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 25 (0x00000064) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 26 (0x00000068) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR3,                              /* 3 (0x0000000C) (prior: -1) */
+				(tIsrFunc)&UNASSIGNED_ISR4,                              /* 4 (0x00000010) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR5,                              /* 5 (0x00000014) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR6,                              /* 6 (0x00000018) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR7,                              /* 7 (0x0000001C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR8,                              /* 8 (0x00000020) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR9,                              /* 9 (0x00000024) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR10,                              /* 10 (0x00000028) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR11,                              /* 11 (0x0000002C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR12,                              /* 12 (0x00000030) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR13,                              /* 13 (0x00000034) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR14,                              /* 14 (0x00000038) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR15,                              /* 15 (0x0000003C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR16,                              /* 16 (0x00000040) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR17,                              /* 17 (0x00000044) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR18,                              /* 18 (0x00000048) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR19,                              /* 19 (0x0000004C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR20,                              /* 20 (0x00000050) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR21,                              /* 21 (0x00000054) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR22,                              /* 22 (0x00000058) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR23,                              /* 23 (0x0000005C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR24,                              /* 24 (0x00000060) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR25,                              /* 25 (0x00000064) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR26,                              /* 26 (0x00000068) (prior: -) */
 				(tIsrFunc)&i2c_isr,                              /* 27 (0x0000006C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 28 (0x00000070) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 29 (0x00000074) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 30 (0x00000078) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 31 (0x0000007C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 32 (0x00000080) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 33 (0x00000084) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR28,                              /* 28 (0x00000070) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR29,                              /* 29 (0x00000074) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR30,                              /* 30 (0x00000078) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR31,                              /* 31 (0x0000007C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR32,                              /* 32 (0x00000080) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR33,                              /* 33 (0x00000084) (prior: -) */
 				(tIsrFunc)&uart1_isr,                              /* 34 (0x00000088) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 35 (0x0000008C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 36 (0x00000090) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 37 (0x00000094) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 38 (0x00000098) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 39 (0x0000009C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 40 (0x000000A0) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 41 (0x000000A4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 42 (0x000000A8) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 43 (0x000000AC) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 44 (0x000000B0) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 45 (0x000000B4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 46 (0x000000B8) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 47 (0x000000BC) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 48 (0x000000C0) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 49 (0x000000C4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 50 (0x000000C8) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR35,                              /* 35 (0x0000008C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR36,                              /* 36 (0x00000090) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR37,                              /* 37 (0x00000094) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR38,                              /* 38 (0x00000098) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR39,                              /* 39 (0x0000009C) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR40,                              /* 40 (0x000000A0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR41,                              /* 41 (0x000000A4) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR42,                              /* 42 (0x000000A8) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR43,                              /* 43 (0x000000AC) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR44,                              /* 44 (0x000000B0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR45,                              /* 45 (0x000000B4) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR46,                              /* 46 (0x000000B8) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR47,                              /* 47 (0x000000BC) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR48,                              /* 48 (0x000000C0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR49,                              /* 49 (0x000000C4) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR50,                              /* 50 (0x000000C8) (prior: -) */
 				(tIsrFunc)&USB_ISR,                              /* 51 (0x000000CC) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 52 (0x000000D0) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 53 (0x000000D4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 54 (0x000000D8) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 55 (0x000000DC) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 56 (0x000000E0) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 57 (0x000000E4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 58 (0x000000E8) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 59 (0x000000EC) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR,                              /* 60 (0x000000F0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR52,                              /* 52 (0x000000D0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR53,                              /* 53 (0x000000D4) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR54,                              /* 54 (0x000000D8) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR55,                              /* 55 (0x000000DC) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR56,                              /* 56 (0x000000E0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR57,                              /* 57 (0x000000E4) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR58,                              /* 58 (0x000000E8) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR59,                              /* 59 (0x000000EC) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR60,                              /* 60 (0x000000F0) (prior: -) */
 				(tIsrFunc)&pit0_isr                               /* 61 (0x000000F4) (prior: -) */
 		}
 };

@@ -13,9 +13,10 @@
 #include "mma7660.h"
 
 void MCU_init(void);
+void led_init(void);
+void usb_init(void);
 void BT_init(void);
 int usb_printf(const char * format, ...);
-
 
 extern void BT_stack_init(void);
 extern void BT_stack_task(void);
@@ -34,28 +35,14 @@ int main(void)
 	int pres;
 	int accx, accy, accz;
 	
-	MCU_init(); /* call device initialization */
-	
-	/* Select USB clock source and enable clock */
-    NVICICER1 |= (1 << 3);	/* Clear any pending interrupts on USB */
-    NVICISER1 |= (1 << 3);	/* Enable interrupts from USB module */
-	SIM_SOPT2 |= (uint32_t)0x00050000UL;
-	SIM_SCGC4 |= (uint32_t)0x00040000UL;
-    SIM_SOPT1 |= (uint32_t)0x80000000UL;
+	MCU_init();
+	led_init();
+	usb_init();
+	afe44xx_init();
 
-	/* Enable CLKOUT on PTC3 */
-//	SIM_SCGC5 |= (uint32_t)0x0800UL;
-//	PORTC_PCR3 = (uint32_t)0x0500UL;
-//	tmp = SIM_SOPT2;
-//	tmp |= 0x00C0UL;
-//	tmp &= ~0x0020UL;
-//	SIM_SOPT2 = tmp;
-	
-	/* Initialize the USB Test Application */
 	TestApp_Init();
 //	BT_stack_init();
 //	mma7660_init();
-//	afe44xx_init();
 
 	for(;;) {
     	Watchdog_Reset();
@@ -116,4 +103,34 @@ int usb_printf(const char * format, ...)
 				format, va);
 	}
 	va_end(va);
+}
+
+void led_init(void)
+{
+	/* 32.768kHz clock is is on pin 41 (PTB18), FTM2_CH0 (ALT3) */
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	SIM_SCGC6 |= SIM_SCGC6_FTM1_MASK;
+	/* configure FTM clock and mode (up-counting, EPWM) */
+	FTM1_SC = (0x1 << 3) | (0x0);		/* Up-counting, 48MHz */
+	FTM1_MODE = (0x1 << 2) | (0x1);		/* All access enabled */
+	FTM1_CONF = (0x3 << 6);				/* Timer active in BDM mode */
+	FTM1_C1SC = (0x1 << 5) | (0x1 << 2);/* EPWM */
+	FTM1_CNTIN = 0;						/* Count from 0 */
+	FTM1_CNT = 0;						/* Load counter */
+	FTM1_MOD = 1465;					/* Counter to get to 32.768kHz */
+	FTM1_C1V = 732;						/* 50% duty cycle */
+	FTM1_MODE = 0;						/* All access disabled */
+	/* switch PORTB pin to FTM */
+	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+}
+
+void usb_init(void)
+{
+ 	/* Select USB clock source and enable clock */
+    NVICICER1 |= (1 << 3);	/* Clear any pending interrupts on USB */
+    NVICISER1 |= (1 << 3);	/* Enable interrupts from USB module */
+    SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_USBSRC_MASK;  
+//    SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);    
+	SIM_SCGC4 |= SIM_SCGC4_USBOTG_MASK;	/* Enable clock to USB */
+    SIM_SOPT1 |= SIM_SOPT1_USBREGEN_MASK;	/* Enable voltage regulator */
 }
