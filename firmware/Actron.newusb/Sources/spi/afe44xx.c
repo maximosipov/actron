@@ -112,14 +112,14 @@ void afe44xx_init(void)
 
 	/* Configure pins for digital signals and SPI */
 	/* CLKOUT (I) */
-	PORTC_PCR9 = (PORTC_PCR9 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<9));
+	PORTC_PCR5 = (PORTC_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<5));
 	/* _RESET (O) */
-	PORTC_PCR10 = (PORTC_PCR10 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOC_PDDR |= (1<<10);
+	PORTC_PCR6 = (PORTC_PCR6 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR |= (1<<6);
 	/* ADC_RDY (I, interrupt) */
-	PORTC_PCR11 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
-	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<11));
+	PORTC_PCR7 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
+	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<7));
 #if 0
 	NVICICER2 |= (1 << 25);				/* Clear any pending */
 	NVICISER2 |= (1 << 25);				/* Enable interrupts */
@@ -154,12 +154,16 @@ void afe44xx_init(void)
 
 	/* Take chip out of reset */
 	GPIOD_PDOR |= (1<<7);
-	GPIOC_PDOR |= (1<<10);
+	GPIOC_PDOR |= (1<<6);
 
-	delay(100000);
+	delay(1000);
 
 	/* Configure sampling cycle (1ms cycle with 10us dead time) */
 	afe44xx_write(LED2STC,		0x55);
+	tmp = afe44xx_read(LED2STC);
+	tmp = afe44xx_read(LED2STC);
+	tmp = afe44xx_read(LED2STC);
+	tmp = afe44xx_read(LED2STC);
 	tmp = afe44xx_read(LED2STC);
 #define CYCLE	4000
 #define FRAME	(CYCLE/4)

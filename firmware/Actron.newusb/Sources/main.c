@@ -17,7 +17,8 @@
 void MCU_init(void);
 void led_init(void);
 void usb_init(void);
-void BT_init(void);
+void bt_init(void);
+
 int usb_printf(const char * format, ...);
 
 /* BT definitions */
@@ -36,16 +37,17 @@ int main(void)
 	MCU_init();
 	led_init();
 	usb_init();
-//	afe44xx_init();
+	bt_init();
+	afe44xx_init();
 //	mma7660_init();
 	
-    CDC_Init();
+//	CDC_Init();
 //	BT_stack_init();
 
 	for(;;) {
     	Watchdog_Reset();
-        CDC_Engine();
-//    	BT_stack_task();
+//		CDC_Engine();
+//		BT_stack_task();
 
 	   	counter++;
 	   	if (counter == 1000) {
@@ -105,7 +107,16 @@ int usb_printf(const char * format, ...)
 
 void led_init(void)
 {
-	/* 32.768kHz clock is is on pin 41 (PTB18), FTM2_CH0 (ALT3) */
+	/* LED destroys debugging */
+#if 0
+	/* Low pin 28 (PTB1), GPIO (ALT1) */
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOB_PDDR |= 0x02;
+	GPIOB_PDOR &= ~0x02;
+#endif
+#if 0
+	/* 32.768kHz clock is is on pin 28 (PTB1), FTM2_CH0 (ALT3) */
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 	SIM_SCGC6 |= SIM_SCGC6_FTM1_MASK;
 	/* configure FTM clock and mode (up-counting, EPWM) */
@@ -116,10 +127,11 @@ void led_init(void)
 	FTM1_CNTIN = 0;						/* Count from 0 */
 	FTM1_CNT = 0;						/* Load counter */
 	FTM1_MOD = 1465;					/* Counter to get to 32.768kHz */
-	FTM1_C1V = 732;						/* 50% duty cycle */
+	FTM1_C1V = 1465-146;				/* 10% duty cycle */
 	FTM1_MODE = 0;						/* All access disabled */
 	/* switch PORTB pin to FTM */
 	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+#endif
 }
 
 void usb_init(void)
@@ -132,7 +144,60 @@ void usb_init(void)
     NVICICER1 |= (1 << 3);	/* Clear any pending interrupts on USB */
     NVICISER1 |= (1 << 3);	/* Enable interrupts from USB module */
     SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_USBSRC_MASK;  
-//    SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);    
+//	SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);    
 	SIM_SCGC4 |= (uint32_t)0x00040000UL;	/* Enable clock to USB */
     SIM_SOPT1 |= (uint32_t)0x80000000UL;	/* Enable voltage regulator */
+}
+
+void bt_init(void)
+{
+	int i;
+
+	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;
+	SIM_SCGC4 |= SIM_SCGC4_UART1_MASK;
+
+	/* 115200 bps, 8N1 HW flow control */
+	UART1_BDH = 0;
+	UART1_BDL = 26;						/* 115200 bps */
+	UART1_C1 = 0;
+	UART1_C3 = 0;
+	UART1_C4 = 0;						/* adjust baud rate? */
+	UART1_C5 = 0; // No DMA for now UART_C5_TDMAS_MASK | UART_C5_RDMAS_MASK;
+	UART1_PFIFO = UART_PFIFO_TXFE_MASK | UART_PFIFO_RXFE_MASK;
+	UART1_TWFIFO = 4;					/* 4 (8 data words FIFO) */
+	UART1_RWFIFO = 1;					/* 1 (8 data words FIFO) */
+	UART1_MODEM = UART_MODEM_RXRTSE_MASK | UART_MODEM_TXCTSE_MASK;
+	UART1_C2 = UART_C2_TIE_MASK | UART_C2_RIE_MASK | UART_C2_TE_MASK | UART_C2_RE_MASK;
+    NVICICER0 |= (1 << 18);				/* Clear any pending */
+    NVICISER0 |= (1 << 18);				/* Enable interrupts */
+
+	/* switch PORTC pins to UART1 RTS/CTS/TX/RX (ALT3) */
+	PORTC_PCR1 = (PORTC_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+	PORTC_PCR2 = (PORTC_PCR2 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+	PORTC_PCR3 = (PORTC_PCR3 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+	PORTC_PCR4 = (PORTC_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+
+	/* 32.768kHz clock is is on pin 41 (PTB18), FTM2_CH0 (ALT3) */
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	SIM_SCGC6 |= SIM_SCGC6_FTM1_MASK;
+	/* configure FTM clock and mode (up-counting, EPWM) */
+	FTM1_SC = (0x1 << 3) | (0x0);		/* Up-counting, 48MHz */
+	FTM1_MODE = (0x1 << 2) | (0x1);		/* All access enabled */
+	FTM1_CONF = (0x3 << 6);				/* Timer active in BDM mode */
+	FTM1_C0SC = (0x1 << 5) | (0x1 << 2);/* EPWM */
+	FTM1_CNTIN = 0;						/* Count from 0 */
+	FTM1_CNT = 0;						/* Load counter */
+	FTM1_MOD = 1465;					/* Counter to get to 32.768kHz */
+	FTM1_C0V = 732;						/* 50% duty cycle */
+	FTM1_MODE = 0;						/* All access disabled */
+	/* switch PORTB pin to FTM */
+	PORTB_PCR0 = (PORTB_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+	
+	/* _SHUTDN is pin 37 (PTB2, ALT1) */
+	PORTC_PCR0 = (PORTC_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR |= 0x01;
+	GPIOC_PDOR |= 0x01;
+
+    /* wait for Bluetooth to power up properly after providing 32khz clock */
+    delay(1000);
 }
