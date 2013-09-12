@@ -3,11 +3,11 @@
  *       changed and should not be edited by hand
  */
 
-/* Include the derivative-specific header file */
-#include <MK20D5.h>
-
 #ifndef DERIVATIVE_H_
 #define DERIVATIVE_H_
+
+/* Include the derivative-specific header file */
+#include <MK20D5.h>
 
 #define __MK_xxx_H__
 #define LITTLE_ENDIAN

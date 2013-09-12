@@ -13,12 +13,15 @@
 #include "mma7660.h"
 #include "usb_cdc.h"
 #include "usb_reg.h"
+#include "afe44xx.h"
 
 void MCU_init(void);
 void led_init(void);
 void usb_init(void);
 void bt_init(void);
+void psox_init(void);
 
+void delay(int t);
 int usb_printf(const char * format, ...);
 
 /* BT definitions */
@@ -29,6 +32,12 @@ int main(void)
 {
 	volatile int counter = 0;
 	volatile uint32_t tmp = 0;
+	volatile uint32_t vled1 = 0;
+	volatile uint32_t vled2 = 0;
+	volatile uint32_t aled1 = 0;
+	volatile uint32_t aled2 = 0;
+	volatile uint32_t dled1 = 0;
+	volatile uint32_t dled2 = 0;
 	int hum;
 	int temp;
 	int pres;
@@ -38,12 +47,14 @@ int main(void)
 	led_init();
 	usb_init();
 	bt_init();
-	afe44xx_init();
+	psox_init();
 //	mma7660_init();
 	
 //	CDC_Init();
 //	BT_stack_init();
+	afe44xx_init();
 
+	afe44xx_write(CONTROL0, 0x1);	/* Read mode */
 	for(;;) {
     	Watchdog_Reset();
 //		CDC_Engine();
@@ -52,6 +63,12 @@ int main(void)
 	   	counter++;
 	   	if (counter == 1000) {
 //			temp = sht21_temp();
+	   		vled1 = afe44xx_read(LED1VAL);
+	   		vled2 = afe44xx_read(ALED1VAL);
+	   		aled1 = afe44xx_read(LED1ABSVAL);
+	   		aled2 = afe44xx_read(LED2VAL);
+	   		dled1 = afe44xx_read(ALED2VAL);
+	   		dled2 = afe44xx_read(LED2ABSVAL);
 	   	}
 	   	if (counter == 2000) {
 //			hum = sht21_humidity();
@@ -200,4 +217,70 @@ void bt_init(void)
 
     /* wait for Bluetooth to power up properly after providing 32khz clock */
     delay(1000);
+}
+
+void psox_init(void)
+{
+	/* Enable modules */
+	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;
+	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;
+	SIM_SCGC6 |= SIM_SCGC6_SPI0_MASK;
+
+	/* Configure SPI0, 8MHz */
+	PORTD_PCR0 = (PORTD_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTD_PCR1 = (PORTD_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTD_PCR2 = (PORTD_PCR2 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTD_PCR3 = (PORTD_PCR3 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	SPI0_CTAR0 = SPI_CTAR_FMSZ(0x7) | SPI_CTAR_PBR(0x1) | SPI_CTAR_BR(0x0)
+		| SPI_CTAR_CSSCK(0x5) | SPI_CTAR_ASC(0x5) | SPI_CTAR_DT(0x7);
+	SPI0_RSER = 0x0; /* disable all interrupts */
+	SPI0_MCR = SPI_MCR_MSTR_MASK | SPI_MCR_PCSIS(0x1f);
+
+	/* Configure pins for digital signals and SPI */
+	/* CLKOUT (I) */
+	PORTC_PCR5 = (PORTC_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<5));
+	/* _RESET (O) */
+	PORTC_PCR6 = (PORTC_PCR6 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR |= (1<<6);
+	/* ADC_RDY (I, interrupt) */
+	PORTC_PCR7 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
+	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<7));
+#if 0
+	NVICICER2 |= (1 << 25);				/* Clear any pending */
+	NVICISER2 |= (1 << 25);				/* Enable interrupts */
+#endif
+	/* PD_ALM (I) */
+	PORTD_PCR4 = (PORTD_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<4));
+	/* LED_ALM (I) */
+	PORTD_PCR5 = (PORTD_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<5));
+	/* DIAG_END (I) */
+	PORTD_PCR6 = (PORTD_PCR6 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<6));
+	/* _AFE_PDN (O) */
+	PORTD_PCR7 = (PORTD_PCR7 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOD_PDDR |= (1<<7);
+
+	/* 8MHz clock is is on pin 21 (PTA4), FTM0_CH1 (ALT3) */
+	SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
+	SIM_SCGC6 |= SIM_SCGC6_FTM0_MASK;
+	/* configure FTM clock and mode (up-counting, EPWM) */
+	FTM0_SC = (0x1 << 3) | (0x0);		/* Up-counting, 48MHz */
+	FTM0_MODE = (0x1 << 2) | (0x1);		/* All access enabled */
+	FTM0_CONF = (0x3 << 6);				/* Timer active in BDM mode */
+	FTM0_C1SC = (0x1 << 5) | (0x1 << 2);/* EPWM */
+	FTM0_CNTIN = 0;						/* Count from 0 */
+	FTM0_CNT = 0;						/* Load counter */
+	FTM0_MOD = 5;						/* Counter to get to 8MHz */
+	FTM0_C1V = 2;						/* 50% duty cycle */
+	FTM0_MODE = 0;						/* All access disabled */
+	PORTA_PCR4 = (PORTA_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+
+	/* Take chip out of reset */
+	GPIOD_PDOR |= (1<<7);
+	GPIOC_PDOR |= (1<<6);
+
+	delay(1000);
 }
