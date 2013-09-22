@@ -346,7 +346,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
 				(tIsrFunc)&UNASSIGNED_ISR37,                              /* 37 (0x00000094) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR38,                              /* 38 (0x00000098) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR39,                              /* 39 (0x0000009C) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR40,                              /* 40 (0x000000A0) (prior: -) */
+				(tIsrFunc)&UNASSIGNED_ISR39,                              /* 40 (0x000000A0) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR41,                              /* 41 (0x000000A4) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR42,                              /* 42 (0x000000A8) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR43,                              /* 43 (0x000000AC) (prior: -) */
@@ -364,7 +364,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
 				(tIsrFunc)&UNASSIGNED_ISR55,                              /* 55 (0x000000DC) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR56,                              /* 56 (0x000000E0) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR57,                              /* 57 (0x000000E4) (prior: -) */
-				(tIsrFunc)&UNASSIGNED_ISR58,                              /* 58 (0x000000E8) (prior: -) */
+				(tIsrFunc)&afe44xx_isr,                              /* 58 (0x000000E8) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR59,                              /* 59 (0x000000EC) (prior: -) */
 				(tIsrFunc)&UNASSIGNED_ISR60,                              /* 60 (0x000000F0) (prior: -) */
 				(tIsrFunc)&pit0_isr                               /* 61 (0x000000F4) (prior: -) */

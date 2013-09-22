@@ -65,16 +65,17 @@
 #define ADCRSTENDCT3	0x1c
 #define PRPCOUNT		0x1d
 #define CONTROL1		0x1e
-
+#define SPARE1			0x1f
 #define TIAGAIN			0x20
 #define TIA_AMB_GAIN	0x21
 #define LEDCNTRL		0x22
 #define CONTROL2		0x23
-
-
-
-
-
+#define SPARE2			0x24
+#define SPARE3			0x25
+#define SPARE4			0x26
+#define SPARE4			0x26
+#define RESERVED1		0x27
+#define RESERVED2		0x28
 #define ALARM			0x29
 #define LED2VAL			0x2a
 #define ALED2VAL		0x2b

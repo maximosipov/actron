@@ -121,7 +121,7 @@ void afe44xx_init(void)
 	PORTC_PCR11 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
 	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<11));
 #if 0
-	NVICICER2 |= (1 << 25);				/* Clear any pending */
+	NVICICPR2 |= (1 << 25);				/* Clear any pending */
 	NVICISER2 |= (1 << 25);				/* Enable interrupts */
 #endif
 	/* PD_ALM (I) */

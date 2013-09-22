@@ -29,16 +29,23 @@
  */
 
 #include "derivative.h"
+#include "hidef.h"
 #include <stdio.h>
 #include "afe44xx.h"
 
 extern void delay(int t);
 
 volatile uint32_t tmp;
-volatile uint32_t red;
-volatile uint32_t red_a;
-volatile uint32_t ir;
-volatile uint32_t ir_a;
+
+volatile uint32_t afe_icount = 0;
+
+volatile uint32_t red = 0;
+volatile uint32_t red_amb = 0;
+volatile uint32_t red_diff = 0;
+volatile uint32_t ir = 0;
+volatile uint32_t ir_amb = 0;
+volatile uint32_t ir_diff = 0;
+
 
 void afe44xx_init(void)
 {
@@ -129,10 +136,23 @@ uint32_t afe44xx_read(uint8_t a)
 	return d;
 }
 
+/* AFE4490 conversion complete ISR */
 void afe44xx_isr(void) {
-	/* ADC conversion is ready, read data */
+	DisableInterrupts;
+	/* TODO: Remove when we work properly with modes */
+	afe44xx_write(CONTROL0, 0x1);
+
+	afe_icount++;
+	/* Read data  */
 	red = afe44xx_read(LED2VAL);
-	red_a = afe44xx_read(ALED2VAL);
+	red_amb = afe44xx_read(ALED2VAL);
+	red_diff = afe44xx_read(LED2ABSVAL);
 	ir = afe44xx_read(LED1VAL);
-	ir_a = afe44xx_read(ALED1VAL);
+	ir_amb = afe44xx_read(ALED1VAL);
+	ir_diff = afe44xx_read(LED1ABSVAL);
+
+	/* Clear any pending */
+	PORTC_PCR7 |= PORT_PCR_ISF_MASK;
+	NVICICPR1 |= (1 << 10);
+	EnableInterrupts;
 }

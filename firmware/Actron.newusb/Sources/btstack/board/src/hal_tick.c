@@ -48,7 +48,7 @@ void hal_tick_init(void)
 {
 	/* TODO: Do we need it now? PIT0 to 100 ms */
 	SIM_SCGC6 |= SIM_SCGC6_PIT_MASK;
-    NVICICER2 |= (1 << 4);				/* Clear any pending */
+    NVICICPR2 |= (1 << 4);				/* Clear any pending */
     NVICISER2 |= (1 << 4);				/* Enable interrupts */
 	PIT_MCR = PIT_MCR_FRZ_MASK;			/* enable module, stop timers in debug mode */
 	PIT_LDVAL0 = 48000000 / 10;			/* initialize timer */

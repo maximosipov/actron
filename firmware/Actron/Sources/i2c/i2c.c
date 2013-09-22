@@ -246,7 +246,7 @@ void i2c_enable(void) {
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 
 //	enable_irq(I2C);
-    NVICICER0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
+    NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
     NVICISER0 |= (1 << 24);	/* Enable interrupts from I2C0 module */
 
 	I2CFDR = 0x27; // mult = 1, div = 480, clk = 100kHz 
@@ -276,8 +276,8 @@ void i2c_disable(void) {
 	// then switch gpio pins to gpio - ignore
 
 //	disable_irq(I2C);
-    NVICICER0 &= ~(1 << 24);	/* Clear any pending interrupts on I2C0 */
-    NVICISER0 &= ~(1 << 24);	/* Enable interrupts from I2C0 module */
+    NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
+    NVICICER0 |= (1 << 24);	/* Disable interrupts from I2C0 module */
 }
 
 

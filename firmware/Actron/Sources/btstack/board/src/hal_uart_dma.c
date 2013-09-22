@@ -40,7 +40,7 @@ void hal_uart_dma_init(void)
 	UART1_RWFIFO = 1;					/* 1 (8 data words FIFO) */
 	UART1_MODEM = UART_MODEM_RXRTSE_MASK | UART_MODEM_TXCTSE_MASK;
 	UART1_C2 = UART_C2_TIE_MASK | UART_C2_RIE_MASK | UART_C2_TE_MASK | UART_C2_RE_MASK;
-    NVICICER1 |= (1 << 15);				/* Clear any pending */
+    NVICICPR1 |= (1 << 15);				/* Clear any pending */
     NVICISER1 |= (1 << 15);				/* Enable interrupts */
 
 	/* switch PORTC pins to UART1 RTS/CTS/TX/RX (ALT3) */

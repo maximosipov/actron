@@ -46,6 +46,10 @@ void CDC_Init(void)
 
 
 /**********************************************************/
+#define SEND_SIZE 128
+extern int send_size;
+extern char send_buf[SEND_SIZE];
+
 void CDC_Engine(void)
 {
     uint16 u8RecData;
@@ -96,15 +100,20 @@ void CDC_Engine(void)
     }
 
     /* Data stage */
-    if(FLAG_CHK(EP_OUT,gu8USB_Flags))
-        {
-            u8RecData=USB_EP_OUT_SizeCheck(EP_OUT);         // Check how many bytes from the PC
-            usbEP_Reset(EP_OUT);
-            usbSIE_CONTROL(EP_OUT);
-            FLAG_CLR(EP_OUT,gu8USB_Flags);
-            EP_IN_Transfer(EP2,CDC_OUTPointer,2);
-            u8RecData=0;
-        }
+    if (FLAG_CHK(EP_OUT,gu8USB_Flags))
+	{
+		u8RecData=USB_EP_OUT_SizeCheck(EP_OUT);         // Check how many bytes from the PC
+		usbEP_Reset(EP_OUT);
+		usbSIE_CONTROL(EP_OUT);
+		FLAG_CLR(EP_OUT,gu8USB_Flags);
+		EP_IN_Transfer(EP2,CDC_OUTPointer,1);
+		u8RecData=0;
+	}
+    if (send_size > 0) {
+		EP_IN_Transfer(EP2, send_buf, send_size);
+		send_size = 0;
+    }
+
 }
 
 /**********************************************************/

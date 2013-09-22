@@ -24,25 +24,32 @@ void psox_init(void);
 void delay(int t);
 int usb_printf(const char * format, ...);
 
-/* BT definitions */
 extern void BT_stack_init(void);
 extern void BT_stack_task(void);
 
+/* Sensor measurements, updated by ??? */
+volatile uint32_t temp = 0;
+volatile uint32_t hum = 0;
+volatile uint32_t pres = 0;
+volatile uint32_t acc_x = 0;
+volatile uint32_t acc_y = 0;
+volatile uint32_t acc_z = 0;
+
+
+/* AFE44xx measurements, updated by AFE ISR */
+extern volatile uint32_t afe_icount;
+extern volatile uint32_t red;
+extern volatile uint32_t red_amb;
+extern volatile uint32_t red_diff;
+extern volatile uint32_t ir;
+extern volatile uint32_t ir_amb;
+extern volatile uint32_t ir_diff;
+
+
 int main(void)
 {
-	volatile int counter = 0;
-	volatile uint32_t tmp = 0;
-	volatile uint32_t vled1 = 0;
-	volatile uint32_t vled2 = 0;
-	volatile uint32_t aled1 = 0;
-	volatile uint32_t aled2 = 0;
-	volatile uint32_t dled1 = 0;
-	volatile uint32_t dled2 = 0;
-	int hum;
-	int temp;
-	int pres;
-	int accx, accy, accz;
-	
+	volatile int tmp = 0;
+
 	MCU_init();
 	led_init();
 	usb_init();
@@ -54,49 +61,14 @@ int main(void)
 //	BT_stack_init();
 	afe44xx_init();
 
-	afe44xx_write(CONTROL0, 0x1);	/* Read mode */
 	for(;;) {
     	Watchdog_Reset();
 //		CDC_Engine();
 //		BT_stack_task();
 
-	   	counter++;
-	   	if (counter == 1000) {
-//			temp = sht21_temp();
-	   		vled1 = afe44xx_read(LED1VAL);
-	   		vled2 = afe44xx_read(ALED1VAL);
-	   		aled1 = afe44xx_read(LED1ABSVAL);
-	   		aled2 = afe44xx_read(LED2VAL);
-	   		dled1 = afe44xx_read(ALED2VAL);
-	   		dled2 = afe44xx_read(LED2ABSVAL);
-	   	}
-	   	if (counter == 2000) {
-//			hum = sht21_humidity();
-	   	}
-	   	/* Breaks USB */
-	   	if (counter == 3000) {
-//			pres = mpl115a2_pressure();
-	   	}
-	   	if (counter == 4000) {
-//	   	  mma7660_acc(&accx, &accy, &accz);
-	   	}
-	   	if (counter > 10000) {
-	   		usb_printf("{ \"t\": %i.%i, \"h\": %i.%i }\r\n",
-	   					temp/100, temp%100, hum/100, hum%100);
-
-//				"{ \"t\": %i.%i, \"h\": %i.%i, \"x\": %s%i.%i, \"y\": %s%i.%i, \"z\": %s%i.%i }\r\n",
-//				temp/100, temp%100, hum/100, hum%100,
-//	   	        accx > 0 ? "" : "-", abs(accx/100), abs(accx%100),
-//	   	        accy > 0 ? "" : "-", abs(accy/100), abs(accy%100),
-//	   	        accz > 0 ? "" : "-", abs(accz/100), abs(accz%100));
-
-//				"{ \"temp\": %i.%i, \"hum\": %i.%i, \"pres\": %i.%i }\r\n",
-//				temp/100, temp%100, hum/100, hum%100, pres/100, pres%100);
-
-	   		counter = 0;
-	   	}
+//		printf("%i,%i,%i\n", afe_icount, red, ir);
 	}
-	
+
 	return 0;
 }
 
@@ -109,30 +81,27 @@ void delay(int t)
     } while(delay_count);
 }
 
+
+#define SEND_SIZE 128
+int send_size = 0;
+char send_buf[SEND_SIZE];
+
 int usb_printf(const char * format, ...)
 {
 	va_list va;
 	va_start(va, format);
-//	if (g_send_size == 0) {
-//		g_send_size += (uint8_t)snprintf(
-//				(char*)g_curr_send_buf,
-//				DATA_BUFF_SIZE - g_send_size,
-//				format, va);
-//	}
-//	va_end(va);
+	if (send_size == 0) {
+		send_size += (uint8_t)snprintf(
+				(char*)send_buf,
+				SEND_SIZE - send_size,
+				format, va);
+	}
+	va_end(va);
 }
+
 
 void led_init(void)
 {
-	/* LED destroys debugging */
-#if 0
-	/* Low pin 28 (PTB1), GPIO (ALT1) */
-	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
-	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOB_PDDR |= 0x02;
-	GPIOB_PDOR &= ~0x02;
-#endif
-#if 0
 	/* 32.768kHz clock is is on pin 28 (PTB1), FTM2_CH0 (ALT3) */
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 	SIM_SCGC6 |= SIM_SCGC6_FTM1_MASK;
@@ -144,12 +113,12 @@ void led_init(void)
 	FTM1_CNTIN = 0;						/* Count from 0 */
 	FTM1_CNT = 0;						/* Load counter */
 	FTM1_MOD = 1465;					/* Counter to get to 32.768kHz */
-	FTM1_C1V = 1465-146;				/* 10% duty cycle */
+	FTM1_C1V = 1465-15;					/* 1% duty cycle */
 	FTM1_MODE = 0;						/* All access disabled */
 	/* switch PORTB pin to FTM */
 	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
-#endif
 }
+
 
 void usb_init(void)
 {
@@ -158,13 +127,14 @@ void usb_init(void)
     USB_REG_SET_STDBY_VLPx;
 
 	/* Select USB clock source and enable clock */
-    NVICICER1 |= (1 << 3);	/* Clear any pending interrupts on USB */
+    NVICICPR1 |= (1 << 3);	/* Clear any pending interrupts on USB */
     NVICISER1 |= (1 << 3);	/* Enable interrupts from USB module */
-    SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_USBSRC_MASK;  
-//	SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);    
+    SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_USBSRC_MASK;
+//	SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);
 	SIM_SCGC4 |= (uint32_t)0x00040000UL;	/* Enable clock to USB */
     SIM_SOPT1 |= (uint32_t)0x80000000UL;	/* Enable voltage regulator */
 }
+
 
 void bt_init(void)
 {
@@ -185,7 +155,7 @@ void bt_init(void)
 	UART1_RWFIFO = 1;					/* 1 (8 data words FIFO) */
 	UART1_MODEM = UART_MODEM_RXRTSE_MASK | UART_MODEM_TXCTSE_MASK;
 	UART1_C2 = UART_C2_TIE_MASK | UART_C2_RIE_MASK | UART_C2_TE_MASK | UART_C2_RE_MASK;
-    NVICICER0 |= (1 << 18);				/* Clear any pending */
+    NVICICPR0 |= (1 << 18);				/* Clear any pending */
     NVICISER0 |= (1 << 18);				/* Enable interrupts */
 
 	/* switch PORTC pins to UART1 RTS/CTS/TX/RX (ALT3) */
@@ -213,11 +183,14 @@ void bt_init(void)
 	/* _SHUTDN is pin 37 (PTB2, ALT1) */
 	PORTC_PCR0 = (PORTC_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
 	GPIOC_PDDR |= 0x01;
+	GPIOC_PDOR &= ~0x01;
+	delay(100);
 	GPIOC_PDOR |= 0x01;
 
     /* wait for Bluetooth to power up properly after providing 32khz clock */
     delay(1000);
 }
+
 
 void psox_init(void)
 {
@@ -246,10 +219,8 @@ void psox_init(void)
 	/* ADC_RDY (I, interrupt) */
 	PORTC_PCR7 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
 	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<7));
-#if 0
-	NVICICER2 |= (1 << 25);				/* Clear any pending */
-	NVICISER2 |= (1 << 25);				/* Enable interrupts */
-#endif
+	NVICICPR1 |= (1 << 10);				/* Clear any pending */
+	NVICISER1 |= (1 << 10);				/* Enable interrupts */
 	/* PD_ALM (I) */
 	PORTD_PCR4 = (PORTD_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
 	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<4));
