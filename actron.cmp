@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-05-25)-stable date = Thu 04 Jul 2013 08:36:35 BST
+Cmp-Mod V01 Created by CvPCB (2011-05-25)-stable date = Sun 06 Oct 2013 16:17:33 BST
 
 BeginCmp
 TimeStamp = /51CEDDA8;
@@ -8,23 +8,23 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEDEAA;
+TimeStamp = /524AEAC8;
 Reference = C2;
-ValeurCmp = 10uF;
+ValeurCmp = 0.1uF;
 IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /50EC2B31;
+TimeStamp = /524C159B;
 Reference = C3;
-ValeurCmp = 10nF;
+ValeurCmp = 0.1uF;
 IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51D0220B;
+TimeStamp = /524C15B7;
 Reference = C4;
-ValeurCmp = 10nF;
+ValeurCmp = 2.2uF;
 IdModule  = SM0603;
 EndCmp
 
@@ -36,9 +36,9 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEDBCC;
+TimeStamp = /524C15C5;
 Reference = C6;
-ValeurCmp = 4.7uF;
+ValeurCmp = 0.1uF;
 IdModule  = SM0603;
 EndCmp
 
@@ -50,9 +50,9 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /50EC31A0;
+TimeStamp = /524C15D8;
 Reference = C8;
-ValeurCmp = 0.1uF;
+ValeurCmp = 2.2uF;
 IdModule  = SM0603;
 EndCmp
 
@@ -67,20 +67,6 @@ BeginCmp
 TimeStamp = /50DDBBCC;
 Reference = C12;
 ValeurCmp = 0.1uF;
-IdModule  = SM0603;
-EndCmp
-
-BeginCmp
-TimeStamp = /50EAF795;
-Reference = C13;
-ValeurCmp = 1uF;
-IdModule  = SM0603;
-EndCmp
-
-BeginCmp
-TimeStamp = /50EAF6F8;
-Reference = C14;
-ValeurCmp = 1uF;
 IdModule  = SM0603;
 EndCmp
 
@@ -176,10 +162,10 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEB881;
+TimeStamp = /5251798D;
 Reference = D1;
-ValeurCmp = BAT;
-IdModule  = SM0603;
+ValeurCmp = D_SCHOTTKY;
+IdModule  = SOD123;
 EndCmp
 
 BeginCmp
@@ -190,15 +176,15 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEDC15;
-Reference = L1;
-ValeurCmp = 2.2uH;
-IdModule  = SM0603;
+TimeStamp = /524C44D0;
+Reference = J1;
+ValeurCmp = USB-MICROB;
+IdModule  = USB-MICROB;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEDEA2;
-Reference = L2;
+TimeStamp = /51CEDC15;
+Reference = L1;
 ValeurCmp = 2.2uH;
 IdModule  = SM0603;
 EndCmp
@@ -239,6 +225,13 @@ IdModule  = flexibity-JST-5-PTH;
 EndCmp
 
 BeginCmp
+TimeStamp = /52517946;
+Reference = Q1;
+ValeurCmp = MOSFET_P_OPENDOUS;
+IdModule  = SOT23-3_Opendous;
+EndCmp
+
+BeginCmp
 TimeStamp = /51CEB8FA;
 Reference = R1;
 ValeurCmp = 2K;
@@ -246,9 +239,9 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEB873;
+TimeStamp = /52517B36;
 Reference = R2;
-ValeurCmp = 330;
+ValeurCmp = 100K;
 IdModule  = SM0603;
 EndCmp
 
@@ -330,24 +323,24 @@ IdModule  = SOT23-5;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CED9D6;
+TimeStamp = /524A9E61;
 Reference = U2;
-ValeurCmp = LM3671-1.8;
-IdModule  = SOT23-5;
+ValeurCmp = MK50DX128CLH7;
+IdModule  = flexibity-TQFP64;
 EndCmp
 
 BeginCmp
-TimeStamp = /51D02015;
+TimeStamp = /524AE94D;
 Reference = U3;
-ValeurCmp = TXB0106;
-IdModule  = flexibity-TSSOP16;
+ValeurCmp = CONN_CORTEX_DEBUG;
+IdModule  = CORTEX_DEBUG;
 EndCmp
 
 BeginCmp
-TimeStamp = /50EAFD54;
+TimeStamp = /524BF81F;
 Reference = U4;
-ValeurCmp = PAN1326;
-IdModule  = flexibity-PAN1326;
+ValeurCmp = LMX9838;
+IdModule  = LMX9838;
 EndCmp
 
 BeginCmp
@@ -358,20 +351,6 @@ IdModule  = SOT23-5;
 EndCmp
 
 BeginCmp
-TimeStamp = /50DDBBCD;
-Reference = U7;
-ValeurCmp = USBCONN;
-IdModule  = flexibity-CONN_USB2_MiniB_SMT;
-EndCmp
-
-BeginCmp
-TimeStamp = /51C85235;
-Reference = U8;
-ValeurCmp = MK20DX128VLF5;
-IdModule  = QFP48_0.5mm_7x7mm_SOT313_LPC1343;
-EndCmp
-
-BeginCmp
 TimeStamp = /50EAEA89;
 Reference = U9;
 ValeurCmp = SHT21;
@@ -379,24 +358,10 @@ IdModule  = flexibity-DFN6;
 EndCmp
 
 BeginCmp
-TimeStamp = /50EAE996;
-Reference = U10;
-ValeurCmp = MPL115A2;
-IdModule  = flexibity-MPL115A2;
-EndCmp
-
-BeginCmp
 TimeStamp = /50EAEF25;
 Reference = U11;
 ValeurCmp = MMA7660FC;
 IdModule  = flexibity-DFN10;
-EndCmp
-
-BeginCmp
-TimeStamp = /51C8617D;
-Reference = U12;
-ValeurCmp = JTAG;
-IdModule  = SparkFun-2X10;
 EndCmp
 
 BeginCmp

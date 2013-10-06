@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "derivative.h"
+#include "hidef.h"
 #include "mpl115a2.h"
 #include "sht21.h"
 #include "mma7660.h"
@@ -16,6 +17,7 @@
 #include "afe44xx.h"
 
 void MCU_init(void);
+void debug_init(void);
 void led_init(void);
 void usb_init(void);
 void bt_init(void);
@@ -23,6 +25,7 @@ void psox_init(void);
 
 void delay(int t);
 int usb_printf(const char * format, ...);
+int uart_printf(const char * format, ...);
 
 extern void BT_stack_init(void);
 extern void BT_stack_task(void);
@@ -38,12 +41,12 @@ volatile uint32_t acc_z = 0;
 
 /* AFE44xx measurements, updated by AFE ISR */
 extern volatile uint32_t afe_icount;
-extern volatile uint32_t red;
-extern volatile uint32_t red_amb;
-extern volatile uint32_t red_diff;
-extern volatile uint32_t ir;
-extern volatile uint32_t ir_amb;
-extern volatile uint32_t ir_diff;
+extern volatile int32_t red;
+extern volatile int32_t red_amb;
+extern volatile int32_t red_diff;
+extern volatile int32_t ir;
+extern volatile int32_t ir_amb;
+extern volatile int32_t ir_diff;
 
 
 int main(void)
@@ -52,6 +55,7 @@ int main(void)
 
 	MCU_init();
 	led_init();
+//	debug_init();
 	usb_init();
 	bt_init();
 	psox_init();
@@ -67,6 +71,9 @@ int main(void)
 //		BT_stack_task();
 
 //		printf("%i,%i,%i\n", afe_icount, red, ir);
+    	DisableInterrupts;
+		uart_printf("%u,%i,%i\n\r", afe_icount, red, ir);
+		EnableInterrupts;
 	}
 
 	return 0;
@@ -91,10 +98,29 @@ int usb_printf(const char * format, ...)
 	va_list va;
 	va_start(va, format);
 	if (send_size == 0) {
-		send_size += (uint8_t)snprintf(
+		send_size += (uint8_t)vsnprintf(
 				(char*)send_buf,
 				SEND_SIZE - send_size,
 				format, va);
+	}
+	va_end(va);
+}
+
+
+int count;
+int uart_printf(const char * format, ...)
+{
+	va_list va;
+	va_start(va, format);
+	send_size = (uint8_t)vsnprintf(
+				(char*)send_buf,
+				SEND_SIZE,
+				format, va);
+	count = 0;
+	while (count < send_size) {
+		UART1_D = send_buf[count];
+		count++;
+		while (!(UART1_S1 & UART_S1_TC_MASK));
 	}
 	va_end(va);
 }
@@ -153,10 +179,10 @@ void bt_init(void)
 	UART1_PFIFO = UART_PFIFO_TXFE_MASK | UART_PFIFO_RXFE_MASK;
 	UART1_TWFIFO = 4;					/* 4 (8 data words FIFO) */
 	UART1_RWFIFO = 1;					/* 1 (8 data words FIFO) */
-	UART1_MODEM = UART_MODEM_RXRTSE_MASK | UART_MODEM_TXCTSE_MASK;
+	UART1_MODEM = 0; //UART_MODEM_RXRTSE_MASK | UART_MODEM_TXCTSE_MASK;
 	UART1_C2 = UART_C2_TIE_MASK | UART_C2_RIE_MASK | UART_C2_TE_MASK | UART_C2_RE_MASK;
     NVICICPR0 |= (1 << 18);				/* Clear any pending */
-    NVICISER0 |= (1 << 18);				/* Enable interrupts */
+    //NVICISER0 |= (1 << 18);				/* Enable interrupts */
 
 	/* switch PORTC pins to UART1 RTS/CTS/TX/RX (ALT3) */
 	PORTC_PCR1 = (PORTC_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
@@ -254,4 +280,14 @@ void psox_init(void)
 	GPIOC_PDOR |= (1<<6);
 
 	delay(1000);
+}
+
+
+void debug_init(void)
+{
+	/* PTB16 as debug */
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	PORTB_PCR16 = (PORTC_PCR16 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOB_PDDR |= (1<<16);
+	GPIOB_PDOR &= ~(1<<16);
 }

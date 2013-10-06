@@ -39,12 +39,12 @@ volatile uint32_t tmp;
 
 volatile uint32_t afe_icount = 0;
 
-volatile uint32_t red = 0;
-volatile uint32_t red_amb = 0;
-volatile uint32_t red_diff = 0;
-volatile uint32_t ir = 0;
-volatile uint32_t ir_amb = 0;
-volatile uint32_t ir_diff = 0;
+volatile int32_t red = 0;
+volatile int32_t red_amb = 0;
+volatile int32_t red_diff = 0;
+volatile int32_t ir = 0;
+volatile int32_t ir_amb = 0;
+volatile int32_t ir_diff = 0;
 
 
 void afe44xx_init(void)
@@ -91,7 +91,11 @@ void afe44xx_init(void)
 	afe44xx_write(ADCRSTCNT3, 	3*FRAME);
 	afe44xx_write(ADCRSTENDCT3, 3*FRAME);
 
+//	afe44xx_write(CONTROL2, 	0x8200);		/* ADC bypass + Disable crystal */
+
 	afe44xx_write(CONTROL1, 	0x103);			/* Timers ON, average 3 samples */
+	afe44xx_write(CONTROL0, 	0x1);			/* Switch to READ mode */
+	delay(1000);
 }
 
 void afe44xx_write(uint8_t a, uint32_t d)
@@ -139,10 +143,8 @@ uint32_t afe44xx_read(uint8_t a)
 /* AFE4490 conversion complete ISR */
 void afe44xx_isr(void) {
 	DisableInterrupts;
-	/* TODO: Remove when we work properly with modes */
-	afe44xx_write(CONTROL0, 0x1);
-
 	afe_icount++;
+
 	/* Read data  */
 	red = afe44xx_read(LED2VAL);
 	red_amb = afe44xx_read(ALED2VAL);

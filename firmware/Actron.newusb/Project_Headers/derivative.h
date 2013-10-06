@@ -26,4 +26,6 @@ typedef uint32_t uint32;
 #define TRUE	1
 #define FALSE	0
 
+#define DEBUG { GPIOB_PTOR |= (1<<16); }
+
 #endif
