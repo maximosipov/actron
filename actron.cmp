@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPCB (2011-05-25)-stable date = Sun 06 Oct 2013 16:17:33 BST
+Cmp-Mod V01 Created by CvPCB (2011-05-25)-stable date = Sat 12 Oct 2013 14:19:49 BST
 
 BeginCmp
 TimeStamp = /51CEDDA8;
@@ -164,7 +164,7 @@ EndCmp
 BeginCmp
 TimeStamp = /5251798D;
 Reference = D1;
-ValeurCmp = D_SCHOTTKY;
+ValeurCmp = B130LAW;
 IdModule  = SOD123;
 EndCmp
 
@@ -179,7 +179,7 @@ BeginCmp
 TimeStamp = /524C44D0;
 Reference = J1;
 ValeurCmp = USB-MICROB;
-IdModule  = USB-MICROB;
+IdModule  = actron-USB-MICROB;
 EndCmp
 
 BeginCmp
@@ -211,10 +211,10 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /51CEDF82;
+TimeStamp = /52594767;
 Reference = P1;
-ValeurCmp = BAT;
-IdModule  = SparkFun-JST-2-SMD;
+ValeurCmp = CONN_1;
+IdModule  = 1Pin_SMT;
 EndCmp
 
 BeginCmp
@@ -225,9 +225,16 @@ IdModule  = flexibity-JST-5-PTH;
 EndCmp
 
 BeginCmp
+TimeStamp = /52594771;
+Reference = P3;
+ValeurCmp = CONN_1;
+IdModule  = 1Pin_SMT;
+EndCmp
+
+BeginCmp
 TimeStamp = /52517946;
 Reference = Q1;
-ValeurCmp = MOSFET_P_OPENDOUS;
+ValeurCmp = DMP1045U;
 IdModule  = SOT23-3_Opendous;
 EndCmp
 
@@ -313,6 +320,13 @@ TimeStamp = /51CEB0AD/51CEB16F;
 Reference = R14;
 ValeurCmp = 1K;
 IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /52592CAA;
+Reference = SW1;
+ValeurCmp = SWITCH_PUSHBUTTON;
+IdModule  = actron-SWITCH-SPDT-SMD;
 EndCmp
 
 BeginCmp

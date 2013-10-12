@@ -1,4 +1,4 @@
-EESchema Schematic File Version 2  date Sun 06 Oct 2013 20:32:45 BST
+EESchema Schematic File Version 2  date Sat 12 Oct 2013 15:10:10 BST
 LIBS:actron
 LIBS:power
 LIBS:device
@@ -41,33 +41,51 @@ $Descr A4 11700 8267
 encoding utf-8
 Sheet 1 2
 Title "Actron activity monitor"
-Date "6 oct 2013"
-Rev "2"
+Date "12 oct 2013"
+Rev "3"
 Comp "Maxim Osipov"
 Comment1 "Licensed under CC-BY-SA 3.0"
 Comment2 "http://creativecommons.org/licenses/by-sa/3.0/"
 Comment3 ""
 Comment4 ""
 $EndDescr
-NoConn ~ 3900 6600
-NoConn ~ 5600 5600
+$Comp
+L CONN_1 P3
+U 1 1 52594771
+P 3000 1200
+F 0 "P3" H 3080 1200 40  0000 L CNN
+F 1 "CONN_1" H 3000 1255 30  0001 C CNN
+	1    3000 1200
+	0    -1   -1   0   
+$EndComp
+$Comp
+L CONN_1 P1
+U 1 1 52594767
+P 2900 1200
+F 0 "P1" H 2980 1200 40  0000 L CNN
+F 1 "CONN_1" H 2900 1255 30  0001 C CNN
+	1    2900 1200
+	0    -1   -1   0   
+$EndComp
 Wire Wire Line
-	2900 3100 2900 4200
+	2900 1500 2900 1350
+Wire Wire Line
+	2900 4200 2900 3100
 Wire Wire Line
 	5800 2900 5800 1700
 Wire Wire Line
 	6500 3500 6650 3500
 Connection ~ 1500 2650
 Wire Wire Line
-	1500 2450 1500 2950
+	1500 2950 1500 2450
 Wire Wire Line
 	1500 2150 1500 1950
 Connection ~ 2900 1950
 Wire Wire Line
-	2900 1950 2200 1950
+	2200 1950 2900 1950
 Connection ~ 10400 1900
 Wire Wire Line
-	10400 1900 10400 1800
+	10400 1800 10400 1900
 Connection ~ 10000 1900
 Wire Wire Line
 	10000 1900 10000 1800
@@ -127,23 +145,21 @@ Wire Wire Line
 	5200 5600 5200 6400
 Connection ~ 3700 6700
 Wire Wire Line
-	3700 6500 3900 6500
+	3900 6500 3700 6500
 Connection ~ 5400 6500
 Wire Wire Line
 	5400 5600 5400 6500
 Wire Wire Line
-	5700 6400 4900 6400
+	4900 6400 5700 6400
 Wire Wire Line
-	6700 4900 6500 4900
-Wire Wire Line
-	2900 2300 2900 1600
+	6500 4900 6700 4900
 Wire Wire Line
 	6500 4800 7200 4800
 Wire Wire Line
 	5900 5600 6100 5600
 Connection ~ 2500 1050
 Wire Wire Line
-	2800 750  2400 750 
+	2400 750  2800 750 
 Wire Wire Line
 	2500 750  2500 1250
 Wire Wire Line
@@ -158,9 +174,9 @@ Wire Wire Line
 Wire Wire Line
 	1700 1500 1700 1650
 Wire Wire Line
-	1200 1650 1200 1550
+	1200 1550 1200 1650
 Wire Wire Line
-	2300 2200 2500 2200
+	2400 2200 2500 2200
 Connection ~ 2900 3250
 Wire Wire Line
 	2900 3250 2700 3250
@@ -186,21 +202,21 @@ Wire Wire Line
 Wire Wire Line
 	4900 6700 6700 6700
 Wire Wire Line
-	5700 6600 4900 6600
+	4900 6600 5700 6600
 Wire Wire Line
 	5800 1700 6100 1700
 Wire Wire Line
-	7200 5200 7200 4800
+	7200 4800 7200 5200
 Wire Wire Line
 	7200 5200 10400 5200
 Wire Wire Line
 	3800 3800 2650 3800
 Connection ~ 2200 6400
 Wire Wire Line
-	2200 6600 2200 6300
+	2200 6300 2200 6600
 Connection ~ 2400 6000
 Wire Wire Line
-	2000 6000 2600 6000
+	2600 6000 2000 6000
 Connection ~ 8900 5200
 Wire Wire Line
 	8900 5200 8900 5000
@@ -214,16 +230,16 @@ Wire Wire Line
 	3700 3500 3800 3500
 Connection ~ 6000 6500
 Wire Wire Line
-	6000 6600 5900 6600
+	5900 6600 6000 6600
 Wire Wire Line
 	6000 6600 6000 6300
 Wire Wire Line
 	6000 6300 5900 6300
 Wire Wire Line
-	2200 6400 2600 6400
+	2600 6400 2200 6400
 Connection ~ 6500 5600
 Wire Wire Line
-	6100 5800 6500 5800
+	6500 5800 6100 5800
 Wire Wire Line
 	9100 6500 10300 6500
 Wire Wire Line
@@ -252,7 +268,7 @@ Connection ~ 8100 5100
 Wire Wire Line
 	10200 6100 10500 6100
 Wire Wire Line
-	10500 5100 10500 6100
+	10500 6100 10500 5100
 Wire Wire Line
 	10500 5100 7300 5100
 Wire Wire Line
@@ -279,7 +295,7 @@ Wire Wire Line
 Wire Wire Line
 	8100 5800 8200 5800
 Wire Wire Line
-	8900 4700 8900 4800
+	8900 4800 8900 4700
 Wire Wire Line
 	8900 4700 9200 4700
 Wire Wire Line
@@ -292,9 +308,9 @@ Wire Wire Line
 	9400 6100 9300 6100
 Connection ~ 9300 6100
 Wire Wire Line
-	8100 5900 8200 5900
+	8200 5900 8100 5900
 Wire Wire Line
-	8100 6600 8100 5900
+	8100 5900 8100 6600
 Wire Wire Line
 	9400 6000 9100 6000
 Wire Wire Line
@@ -312,7 +328,7 @@ Wire Wire Line
 	5900 6400 6000 6400
 Connection ~ 6000 6400
 Wire Wire Line
-	6100 6500 5900 6500
+	5900 6500 6100 6500
 Wire Wire Line
 	3800 3600 3650 3600
 Wire Wire Line
@@ -349,11 +365,11 @@ Wire Wire Line
 Wire Wire Line
 	3800 4000 2900 4000
 Wire Wire Line
-	5700 6500 4900 6500
+	4900 6500 5700 6500
 Wire Wire Line
-	4900 6300 5700 6300
+	5700 6300 4900 6300
 Wire Wire Line
-	6700 6800 6700 4900
+	6700 4900 6700 6800
 Connection ~ 6700 6700
 Wire Wire Line
 	4500 2000 4500 2900
@@ -371,15 +387,15 @@ Wire Wire Line
 Wire Wire Line
 	3000 2000 3400 2000
 Wire Wire Line
-	2300 3250 2500 3250
+	2400 3250 2500 3250
 Wire Wire Line
-	2700 2200 2900 2200
+	2900 2200 2700 2200
 Connection ~ 2900 2200
 Wire Wire Line
 	1200 1350 1200 1050
 Connection ~ 1200 1050
 Wire Wire Line
-	1900 1650 1200 1650
+	1200 1650 1900 1650
 Connection ~ 1700 1650
 Wire Wire Line
 	2100 1050 2200 1050
@@ -397,11 +413,11 @@ Wire Wire Line
 	5300 5600 5300 6600
 Connection ~ 5300 6600
 Wire Wire Line
-	3900 6700 3700 6700
+	3700 6700 3900 6700
 Wire Wire Line
-	3700 6400 3900 6400
+	3900 6400 3700 6400
 Wire Wire Line
-	3700 6900 3700 6400
+	3700 6400 3700 6900
 Connection ~ 3700 6500
 Connection ~ 3900 6000
 Wire Wire Line
@@ -409,7 +425,7 @@ Wire Wire Line
 Wire Wire Line
 	4200 6000 4400 6000
 Wire Wire Line
-	3900 5850 3900 6300
+	3900 6300 3900 5850
 Wire Wire Line
 	6500 4600 7600 4600
 Wire Wire Line
@@ -449,7 +465,7 @@ Wire Wire Line
 	9400 3700 9300 3700
 Connection ~ 9400 3700
 Wire Wire Line
-	9300 1900 10700 1900
+	10700 1900 9300 1900
 Wire Wire Line
 	10000 1600 10000 1500
 Wire Wire Line
@@ -466,23 +482,36 @@ Wire Wire Line
 	1900 3450 2900 3450
 Connection ~ 2900 3450
 Wire Wire Line
-	1500 2650 1900 2650
+	1900 2650 1500 2650
 Connection ~ 1900 2650
 Wire Wire Line
 	1500 3150 1500 3350
 Wire Wire Line
 	1800 1950 900  1950
 Wire Wire Line
-	900  1050 900  1950
+	900  1950 900  1050
 Wire Wire Line
-	1300 1050 900  1050
+	900  1050 1300 1050
 Connection ~ 1500 1950
 Wire Wire Line
-	3000 1600 3000 1650
+	3000 1350 3000 1650
 Wire Wire Line
 	3000 1650 3300 1650
 Wire Wire Line
 	6500 3600 6700 3600
+Wire Wire Line
+	2900 1800 2900 2300
+$Comp
+L SWITCH_PUSHBUTTON SW1
+U 1 1 52592CAA
+P 2900 1650
+F 0 "SW1" H 2900 1600 30  0000 C CNN
+F 1 "SWITCH_PUSHBUTTON" H 2900 1725 25  0000 C CNN
+	1    2900 1650
+	0    1    1    0   
+$EndComp
+NoConn ~ 3900 6600
+NoConn ~ 5600 5600
 NoConn ~ 5700 2900
 NoConn ~ 5600 2900
 NoConn ~ 5500 2900
@@ -505,16 +534,6 @@ F 0 "#PWR02" H 6700 3600 30  0001 C CNN
 F 1 "GND" H 6700 3530 30  0001 C CNN
 	1    6700 3600
 	0    -1   -1   0   
-$EndComp
-$Comp
-L M02PTH JP1
-U 1 1 5251A186
-P 2900 1300
-F 0 "JP1" H 2800 1530 50  0000 L BNN
-F 1 "M02PTH" H 2800 1100 50  0000 L BNN
-F 2 "SparkFun-1X02" H 2900 1450 50  0001 C CNN
-	1    2900 1300
-	0    1    1    0   
 $EndComp
 $Comp
 L GND #PWR03
@@ -830,10 +849,10 @@ $EndComp
 $Comp
 L GND #PWR018
 U 1 1 51CEB936
-P 2300 2200
-F 0 "#PWR018" H 2300 2200 30  0001 C CNN
-F 1 "GND" H 2300 2130 30  0001 C CNN
-	1    2300 2200
+P 2400 2200
+F 0 "#PWR018" H 2400 2200 30  0001 C CNN
+F 1 "GND" H 2400 2130 30  0001 C CNN
+	1    2400 2200
 	0    1    1    0   
 $EndComp
 $Comp
@@ -875,10 +894,10 @@ $EndComp
 $Comp
 L GND #PWR021
 U 1 1 51CEB849
-P 2300 3250
-F 0 "#PWR021" H 2300 3250 30  0001 C CNN
-F 1 "GND" H 2300 3180 30  0001 C CNN
-	1    2300 3250
+P 2400 3250
+F 0 "#PWR021" H 2400 3250 30  0001 C CNN
+F 1 "GND" H 2400 3180 30  0001 C CNN
+	1    2400 3250
 	0    1    1    0   
 $EndComp
 $Comp
