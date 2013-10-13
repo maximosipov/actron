@@ -35,22 +35,10 @@
 
 extern void delay(int t);
 
-volatile uint32_t tmp;
+volatile afe44xx_data_t afe44xx_data = {0, 0, 0, 0, 0, 0, 0};
 
-volatile uint32_t afe_icount = 0;
-
-volatile int32_t red = 0;
-volatile int32_t red_amb = 0;
-volatile int32_t red_diff = 0;
-volatile int32_t ir = 0;
-volatile int32_t ir_amb = 0;
-volatile int32_t ir_diff = 0;
-
-
-void afe44xx_init(void)
+void afe44xx_init(uint32_t period)
 {
-	int i;
-
 	/* Configure sampling cycle (1ms cycle with 10us dead time) */
 #define CYCLE	4000
 #define FRAME	(CYCLE/4)
@@ -91,10 +79,10 @@ void afe44xx_init(void)
 	afe44xx_write(ADCRSTCNT3, 	3*FRAME);
 	afe44xx_write(ADCRSTENDCT3, 3*FRAME);
 
-//	afe44xx_write(CONTROL2, 	0x8200);		/* ADC bypass + Disable crystal */
-
-	afe44xx_write(CONTROL1, 	0x103);			/* Timers ON, average 3 samples */
-	afe44xx_write(CONTROL0, 	0x1);			/* Switch to READ mode */
+	afe44xx_write(CONTROL2, 	0x020200);		/* Disable crystal, 0.5V TX_REF */
+	afe44xx_write(LEDCNTRL,		0x008080);		/* LED_RANGE=100mA, LED=50mA */
+	afe44xx_write(CONTROL1, 	0x000103);		/* Timers ON, average 3 samples */
+	afe44xx_write(CONTROL0, 	0x000001);		/* Switch to READ mode */
 	delay(1000);
 }
 
@@ -143,15 +131,15 @@ uint32_t afe44xx_read(uint8_t a)
 /* AFE4490 conversion complete ISR */
 void afe44xx_isr(void) {
 	DisableInterrupts;
-	afe_icount++;
 
 	/* Read data  */
-	red = afe44xx_read(LED2VAL);
-	red_amb = afe44xx_read(ALED2VAL);
-	red_diff = afe44xx_read(LED2ABSVAL);
-	ir = afe44xx_read(LED1VAL);
-	ir_amb = afe44xx_read(ALED1VAL);
-	ir_diff = afe44xx_read(LED1ABSVAL);
+	afe44xx_data.red = afe44xx_read(LED2VAL);
+	afe44xx_data.red_amb = afe44xx_read(ALED2VAL);
+	afe44xx_data.red_diff = afe44xx_read(LED2ABSVAL);
+	afe44xx_data.ir = afe44xx_read(LED1VAL);
+	afe44xx_data.ir_amb = afe44xx_read(ALED1VAL);
+	afe44xx_data.ir_diff = afe44xx_read(LED1ABSVAL);
+	afe44xx_data.count++;
 
 	/* Clear any pending */
 	PORTC_PCR7 |= PORT_PCR_ISF_MASK;

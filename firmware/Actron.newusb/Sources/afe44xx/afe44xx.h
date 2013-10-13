@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <types.h>
 
+/* Register definitions */
 #define CONTROL0		0x00
 #define LED2STC			0x01
 #define LED2ENDC		0x02
@@ -86,7 +87,43 @@
 #define DIAG			0x30
 
 
-extern void afe44xx_init(void);
+/* AFE44xx results */
+typedef struct {
+	uint32_t count;
+	int32_t red;
+	int32_t red_amb;
+	int32_t red_diff;
+	int32_t ir;
+	int32_t ir_amb;
+	int32_t ir_diff;
+} afe44xx_data_t;
+
+
+/* (Re-)initialize AFE with specified period */
+extern void afe44xx_init(uint32_t period);
+
+/* Reset AFE */
+extern void afe44xx_rst(void);
+
+/* Perform diagnostics (8ms) */
+extern uint32_t afe44xx_diag(void);
+
+/* Transimpedance amp gain */
+extern void afe44xx_tia_gain(uint32_t val);
+
+/* Transimpedance amp gain and ambient cancellation current */
+extern void afe44xx_tia_amb_gain(uint32_t val);
+
+/* LED settings */
+extern void afe44xx_led_cntrl(uint32_t val);
+
+/* Misc. settings */
+extern void afe44xx_tx_ref(uint32_t val);
+
+/* Power mode */
+extern void afe44xx_pdn(uint8_t pdn_tx, uint8_t pdn_rx, uint8_t pdn_afe);
+
+/* Read/write AFE */
 extern void afe44xx_write(uint8_t a, uint32_t d);
 extern uint32_t afe44xx_read(uint8_t a);
 
