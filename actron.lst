@@ -1,75 +1,16 @@
-eeschema (2011-05-25)-stable  >> Creation date: Thu 04 Jul 2013 10:15:22 BST
-
-#Cmp ( order = Reference )
-| C1         10uF        ;             
-| C2         10uF        ;             
-| C3         10nF        ;             
-| C4         10nF        ;             
-| C5         4.7uF       ;             
-| C6         4.7uF       ;             
-| C7         4.7uF       ;             
-| C8         0.1uF       ;             
-| C11        4.7uF       ;             
-| C12        0.1uF       ;             
-| C13        1uF         ;             
-| C14        1uF         ;             
-| C15        12pF        ;             
-| C16        12pF        ;             
-| C17        0.1uF       ;             
-| C18        10nF        ;             
-| C19        1uF         ;             
-| C20        0.1uF       ;             
-| C21        10nF        ;             
-| C22        2.2uF       ;             
-| C23        2.2uF       ;             
-| C24        0.1uF       ;             
-| C25        0.1uF       ;             
-| C26        1uF         ;             
-| C29        0.1uF       ;             
-| D1         BAT         ;             
-| D2         DBG         ;             
-| L1         2.2uH       ;             
-| L2         2.2uH       ;             
-| L3         100MH       ;             
-| L4         100MH       ;             
-| L5         100MH       ;             
-| P1         BAT         ;             
-| P2         POX         ;             
-| R1         2K          ;             
-| R2         330         ;             
-| R3         33          ;             
-| R4         33          ;             
-| R5         4.7K        ;             
-| R6         4.7K        ;             
-| R7         200         ;             
-| R10        10K         ;             
-| R11        10K         ;             
-| R12        10K         ;             
-| R13        10K         ;             
-| R14        1K          ;             
-| U1         LM3671-3.3  ;             
-| U2         LM3671-1.8  ;             
-| U3         TXB0106     ;             
-| U4         PAN1326     ;             
-| U5         MCP73831    ; SparkFun-SOT23-5
-| U7         USBCONN     ;             
-| U8         MK20DX128VLF5;             
-| U9         SHT21       ;             
-| U10        MPL115A2    ;             
-| U11        MMA7660FC   ;             
-| U12        JTAG        ;             
-| U13        AFE4490     ;             
-| X1         24MHz       ;             
-#End Cmp
+eeschema (2011-05-25)-stable  >> Creation date: Sun 27 Oct 2013 16:18:23 GMT
 
 #Cmp ( order = Value )
-| 0.1uF        C8        ;             
+| 0.1uF        C2        ;             
+| 0.1uF        C3        ;             
+| 0.1uF        C6        ;             
 | 0.1uF        C12       ;             
 | 0.1uF        C17       ;             
 | 0.1uF        C20       ;             
 | 0.1uF        C24       ;             
 | 0.1uF        C25       ;             
 | 0.1uF        C29       ;             
+| 100K         R2        ;             
 | 100MH        L3        ;             
 | 100MH        L4        ;             
 | 100MH        L5        ;             
@@ -77,51 +18,45 @@ eeschema (2011-05-25)-stable  >> Creation date: Thu 04 Jul 2013 10:15:22 BST
 | 10K          R11       ;             
 | 10K          R12       ;             
 | 10K          R13       ;             
-| 10nF         C3        ;             
-| 10nF         C4        ;             
 | 10nF         C18       ;             
 | 10nF         C21       ;             
 | 10uF         C1        ;             
-| 10uF         C2        ;             
 | 12pF         C15       ;             
 | 12pF         C16       ;             
 | 1K           R14       ;             
-| 1uF          C13       ;             
-| 1uF          C14       ;             
 | 1uF          C19       ;             
 | 1uF          C26       ;             
+| 2.2uF        C4        ;             
+| 2.2uF        C8        ;             
 | 2.2uF        C22       ;             
 | 2.2uF        C23       ;             
 | 2.2uH        L1        ;             
-| 2.2uH        L2        ;             
 | 200          R7        ;             
 | 24MHz        X1        ;             
 | 2K           R1        ;             
 | 33           R3        ;             
 | 33           R4        ;             
-| 330          R2        ;             
 | 4.7K         R5        ;             
 | 4.7K         R6        ;             
 | 4.7uF        C5        ;             
-| 4.7uF        C6        ;             
 | 4.7uF        C7        ;             
 | 4.7uF        C11       ;             
 | AFE4490      U13       ;             
-| BAT          D1        ;             
-| BAT          P1        ;             
+| B130LAW      D1        ;             
+| CONN_1       P1        ;             
+| CONN_1       P3        ;             
+| CONN_CORTEX_DEBUG U3        ;             
 | DBG          D2        ;             
-| JTAG         U12       ;             
-| LM3671-1.8   U2        ;             
+| DMP1045U     Q1        ;             
 | LM3671-3.3   U1        ;             
+| LMX9838      U4        ;             
 | MCP73831     U5        ; SparkFun-SOT23-5
-| MK20DX128VLF5 U8        ;             
+| MK50DX128CLH7 U2        ;             
 | MMA7660FC    U11       ;             
-| MPL115A2     U10       ;             
-| PAN1326      U4        ;             
 | POX          P2        ;             
 | SHT21        U9        ;             
-| TXB0106      U3        ;             
-| USBCONN      U7        ;             
+| SWITCH_PUSHBUTTON SW1       ;             
+| USB-MICROB   J1        ; SparkFun-USB-MICROB
 #End Cmp
 
 #End List
