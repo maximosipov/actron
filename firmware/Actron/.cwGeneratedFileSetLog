@@ -1,0 +1,11 @@
+Sources/main.c
+Project_Settings/Linker_Files/MK50DX128_ram.lcf
+Project_Settings/Linker_Files/MK50DX128_flash.lcf
+Project_Settings/Debugger/MK50DX128.mem
+Project_Settings/Debugger/init_kinetis.tcl
+Project_Settings/Debugger/mass_erase_kinetis.tcl
+Project_Headers/derivative.h
+Project_Headers/MK50D7.h
+DeviceInitialization.pe
+.settings/com.freescale.core.ide.newprojectwizard.prefs
+ReferencedRSESystems.xml
