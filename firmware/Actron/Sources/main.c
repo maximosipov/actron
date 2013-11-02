@@ -55,13 +55,13 @@ int main(void)
 //	i2c_init();
 //	mma7660_init();
 	
-	CDC_Init();
+	TestApp_Init();
 //	BT_stack_init();
 //	afe44xx_init(4000);
 
 	for(;;) {
     	Watchdog_Reset();
-		CDC_Engine();
+    	TestApp_Task();
 //		BT_stack_task();
 
 //    	mma7760_acc(&acc_x, &acc_y, &acc_z);

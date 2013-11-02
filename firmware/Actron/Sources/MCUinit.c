@@ -29,7 +29,6 @@
 
 #include <MK50D7.h>                    /* I/O map for MK50DX128CMB7 */
 #include "MCUinit.h"
-#include "usb_reg.h"
 
 typedef void (*const tIsrFunc)(void);
 typedef struct {
@@ -224,10 +223,6 @@ void led_init(void)
 
 void usb_init(void)
 {
-    USB_REG_SET_ENABLE;
-    USB_REG_SET_STDBY_STOP;      
-    USB_REG_SET_STDBY_VLPx;
-
 	/* Select USB clock source and enable clock */
     NVICICER2 |= (1 << 9);	/* Clear any pending interrupts on USB */
     NVICISER2 |= (1 << 9);	/* Enable interrupts from USB module */

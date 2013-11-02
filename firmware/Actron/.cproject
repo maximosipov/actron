@@ -27,7 +27,7 @@
 					<folderInfo id="com.freescale.arm.cdt.toolchain.config.arm.release.1846591089." name="/" resourcePath="">
 						<toolChain id="com.freescale.arm.cdt.toolchain.arm.release.208987072" name="ARM Toolchain" superClass="com.freescale.arm.cdt.toolchain.arm.release">
 							<targetPlatform id="com.freescale.arm.cdt.toolchain.targetplatform.630053238" isAbstract="false" name="ARM Target Platform" superClass="com.freescale.arm.cdt.toolchain.targetplatform"/>
-							<builder buildPath="${ProjDirPath}/MK50DX128_INTERNAL_RAM" id="com.freescale.arm.cdt.toolchain.builder.2024480462" keepEnvironmentInBuildfile="false" name="GNU Make Builder" parallelizationNumber="-1" superClass="com.freescale.arm.cdt.toolchain.builder"/>
+							<builder buildPath="${ProjDirPath}/MK50DX128_INTERNAL_RAM" id="com.freescale.arm.cdt.toolchain.builder.2024480462" keepEnvironmentInBuildfile="false" name="GNU Make Builder" parallelBuildWorkspaceOn="true" parallelizationNumber="-1" superClass="com.freescale.arm.cdt.toolchain.builder"/>
 							<tool id="com.freescale.arm.cdt.toolchain.linker.625393040" name="ARM Linker" superClass="com.freescale.arm.cdt.toolchain.linker">
 								<option id="com.freescale.arm.cdt.toolchain.linker.libraries.libSearch.1156566052" name="Library Search Paths" superClass="com.freescale.arm.cdt.toolchain.linker.libraries.libSearch" valueType="stringList">
 									<listOptionValue builtIn="false" value="&quot;${MCUToolsBaseDir}/ARM_EABI_Support/ewl/lib&quot;"/>
@@ -655,6 +655,7 @@
 			<storageModule moduleId="org.eclipse.cdt.core.pathentry"/>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 		</cconfiguration>
 		<cconfiguration id="com.freescale.arm.cdt.toolchain.config.arm.release.1373217582">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.freescale.arm.cdt.toolchain.config.arm.release.1373217582" moduleId="org.eclipse.cdt.core.settings" name="MK50DX128_INTERNAL_FLASH">
@@ -680,7 +681,7 @@
 					<folderInfo id="com.freescale.arm.cdt.toolchain.config.arm.release.1373217582." name="/" resourcePath="">
 						<toolChain id="com.freescale.arm.cdt.toolchain.arm.release.1473902568" name="ARM Toolchain" superClass="com.freescale.arm.cdt.toolchain.arm.release">
 							<targetPlatform id="com.freescale.arm.cdt.toolchain.targetplatform.885318131" isAbstract="false" name="ARM Target Platform" superClass="com.freescale.arm.cdt.toolchain.targetplatform"/>
-							<builder buildPath="${ProjDirPath}/MK50DX128_INTERNAL_FLASH" id="com.freescale.arm.cdt.toolchain.builder.1066687925" keepEnvironmentInBuildfile="false" name="GNU Make Builder" parallelizationNumber="-1" superClass="com.freescale.arm.cdt.toolchain.builder"/>
+							<builder buildPath="${ProjDirPath}/MK50DX128_INTERNAL_FLASH" id="com.freescale.arm.cdt.toolchain.builder.1066687925" keepEnvironmentInBuildfile="false" name="GNU Make Builder" parallelBuildWorkspaceOn="true" parallelizationNumber="-1" superClass="com.freescale.arm.cdt.toolchain.builder"/>
 							<tool id="com.freescale.arm.cdt.toolchain.linker.1358938226" name="ARM Linker" superClass="com.freescale.arm.cdt.toolchain.linker">
 								<option id="com.freescale.arm.cdt.toolchain.linker.libraries.libSearch.881037338" name="Library Search Paths" superClass="com.freescale.arm.cdt.toolchain.linker.libraries.libSearch" valueType="stringList">
 									<listOptionValue builtIn="false" value="&quot;${MCUToolsBaseDir}/ARM_EABI_Support/ewl/lib&quot;"/>
@@ -1308,6 +1309,7 @@
 			<storageModule moduleId="org.eclipse.cdt.core.pathentry"/>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
