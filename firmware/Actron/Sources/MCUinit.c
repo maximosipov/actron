@@ -229,8 +229,8 @@ void usb_init(void)
     USB_REG_SET_STDBY_VLPx;
 
 	/* Select USB clock source and enable clock */
-    NVICICPR1 |= (1 << 3);	/* Clear any pending interrupts on USB */
-    NVICISER1 |= (1 << 3);	/* Enable interrupts from USB module */
+    NVICICER2 |= (1 << 9);	/* Clear any pending interrupts on USB */
+    NVICISER2 |= (1 << 9);	/* Enable interrupts from USB module */
     SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK | SIM_SOPT2_USBSRC_MASK;
 //	SIM_CLKDIV2 &= ~(SIM_CLKDIV2_USBDIV_MASK | SIM_CLKDIV2_USBFRAC_MASK);
 	SIM_SCGC4 |= (uint32_t)0x00040000UL;	/* Enable clock to USB */
