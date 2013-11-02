@@ -92,24 +92,25 @@ void delay(int t)
 }
 
 
-#define SEND_SIZE 128
-int send_size = 0;
-unsigned char send_buf[SEND_SIZE];
+/* Must match virtual_com.h !!! */
+#define  DATA_BUFF_SIZE     (64)
+extern uint8_t g_curr_send_buf[DATA_BUFF_SIZE];
+extern uint8_t g_send_size;
 
 int usb_printf(const char * format, ...)
 {
 	va_list va;
 	va_start(va, format);
-	if (send_size == 0) {
-		send_size += (uint8_t)vsnprintf(
-				(char*)send_buf,
-				SEND_SIZE - send_size,
-				format, va);
+	if (g_send_size == 0) {
+		g_send_size += (uint8_t)snprintf(
+			(char*)g_curr_send_buf,
+			DATA_BUFF_SIZE - g_send_size,
+			format, va);
 	}
 	va_end(va);
 }
 
-
+#if 0
 int count;
 int uart_printf(const char * format, ...)
 {
@@ -127,3 +128,4 @@ int uart_printf(const char * format, ...)
 	}
 	va_end(va);
 }
+#endif
