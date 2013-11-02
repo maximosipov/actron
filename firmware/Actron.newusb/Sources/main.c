@@ -21,6 +21,7 @@ void led_init(void);
 void usb_init(void);
 void bt_init(void);
 void psox_init(void);
+void i2c_init();
 
 void delay(int t);
 int usb_printf(const char * format, ...);
@@ -32,7 +33,6 @@ extern void BT_stack_task(void);
 /* Sensor measurements, updated by ??? */
 volatile uint32_t temp = 0;
 volatile uint32_t hum = 0;
-volatile uint32_t pres = 0;
 volatile uint32_t acc_x = 0;
 volatile uint32_t acc_y = 0;
 volatile uint32_t acc_z = 0;
@@ -47,25 +47,35 @@ int main(void)
 	volatile int tmp = 0;
 
 	MCU_init();
-	led_init();
+//	led_init();
 //	debug_init();
 	usb_init();
-	bt_init();
-	psox_init();
+//	bt_init();
+//	psox_init();
+//	i2c_init();
 //	mma7660_init();
 	
-//	CDC_Init();
+	CDC_Init();
 //	BT_stack_init();
-	afe44xx_init(4000);
+//	afe44xx_init(4000);
 
 	for(;;) {
     	Watchdog_Reset();
-//		CDC_Engine();
+		CDC_Engine();
 //		BT_stack_task();
 
-    	DisableInterrupts;
-		uart_printf("AIR: %i %i %i\r\n", afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir);
-		EnableInterrupts;
+//    	mma7760_acc(&acc_x, &acc_y, &acc_z);
+//    	temp = sht21_temp();
+//    	hum = sht21_humidity();
+
+//    	DisableInterrupts;
+//		uart_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
+//				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
+//				temp, hum, acc_x, acc_y, acc_z);
+//		EnableInterrupts;
+		usb_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
+				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
+				temp, hum, acc_x, acc_y, acc_z);
 		delay(10000);
 	}
 

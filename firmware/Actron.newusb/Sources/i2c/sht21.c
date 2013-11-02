@@ -42,23 +42,19 @@ int sht21_temp(void)
 {
   int val;
 
-  i2c_enable();
-  /* For for about 15ms before the SHT11 can be used */
+  /* For for about 15ms before the SHT21 can be used */
   delay(15000);
 
   buf[0] = 0xe3;
-  i2c_transmitinit(0x40, 1, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(0x40, 1, buf);
 
   /* Wait for measurement about 85ms */
   delay(85000);
 
-  i2c_receiveinit(0x40, 3, buf);
-  while(!i2c_transferred()) ;
+  i2c_rx(0x40, 3, buf);
 
   val = (int)(buf[0]<<24 | buf[1]<<16 | buf[2]<<8 | buf[3]);
 
-//  i2c_disable();
   /* return temp * 100 (0.01 deg accuracy) */
   return (-46.85 + (175.72*((val>>16)&0x0000fffc))/0x10000)*100;
 }
@@ -68,23 +64,19 @@ int sht21_humidity(void)
 {
   int val;
 
-  i2c_enable();
-  /* For for about 15ms before the SHT11 can be used */
+  /* For for about 15ms before the SHT21 can be used */
   delay(15000);
 
   buf[0] = 0xe5;
-  i2c_transmitinit(0x40, 1, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(0x40, 1, buf);
 
   /* Wait for measurement about 85ms */
   delay(85000);
 
-  i2c_receiveinit(0x40, 3, buf);
-  while(!i2c_transferred()) ;
+  i2c_rx(0x40, 3, buf);
 
   val = (int)(buf[0]<<24 | buf[1]<<16 | buf[2]<<8 | buf[3]);
 
-//  i2c_disable();
   /* return relative humidity * 100 (0.04 % accuracy) */
   return (-6.0 + (125.0*((val>>16)&0x0000fffc))/0x10000)*100;
 }

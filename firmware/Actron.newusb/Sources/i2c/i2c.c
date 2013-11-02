@@ -32,300 +32,81 @@
 #include <stdio.h>
 #include "i2c.h"
 
-static int8_t tx_byte_ctr;
-static int8_t rx_byte_ctr;
 
-static uint8_t* tx_buf_ptr;
-static uint8_t* rx_buf_ptr;
+void i2c_tx(uint8_t addr, uint8_t len, uint8_t *buf)
+{
+	int i = 0;
 
+	/* Enable module, set write mode and generate start signal */
+	I2C0_C1 = I2C_C1_IICEN_MASK | I2C_C1_MST_MASK | I2C_C1_TX_MASK ;
 
-volatile unsigned int i;	// volatile to prevent optimization
-
-static inline void i2c_send_byte(void) {
-	I2CDR = *(tx_buf_ptr++); // set new byte, MCF is automatically cleared
-	tx_byte_ctr--;
-}
-static inline void i2c_recv_byte(void) {
-	*(rx_buf_ptr++) = I2CDR;
-	rx_byte_ctr--;
-}
-
-//------------------------------------------------------------------------------
-// void i2c_receiveinit(uint8_t slave_address, 
-//                              uint8_t prescale)
-//
-// This function initializes the USCI module for master-receive operation. 
-//
-// IN:   uint8_t slave_address   =>  Slave Address
-//       uint8_t prescale        =>  SCL clock adjustment 
-//-----------------------------------------------------------------------------
-//static volatile uint8_t rx_byte_tot = 0;
-void i2c_receiveinit(uint8_t slave_address, uint8_t byte_ctr, uint8_t *rx_buf) {
-	// wait for bus to be free before setting MSTA (assuming we're in a multi-master environment or still sending something else)
-	while(i2c_busy()) /* wait */;
-
-	// assert: rx_byte_ctr <= 0
-	// assert: tx_byte_ctr <= 0
-	tx_buf_ptr = 0;
-	tx_byte_ctr = 0; // indicate that nothing is to be received
-	rx_byte_ctr = byte_ctr;
-	rx_buf_ptr  = rx_buf;
-
-	// clockdiv
-	//*I2CFDR = 0x20; // 150 khz for redbee econotag
-	
-	// assume being master, thus no addres has to be set
-	I2CCR = I2C_MEN |
-#ifdef I2C_NON_BLOCKING
-		I2C_MIEN | 
-#endif
-		I2C_MSTA | I2C_MTX; // start condition is triggered
-//	I2C_MSTA | I2C_MTX | I2C_RXAK; // start condition is triggered
-	
-	// write out address of slave
-	I2CDR = (slave_address & 0x7f) <<1 | 0x01;
-
-#ifndef I2C_NON_BLOCKING
-	i2c_receive();
-#endif	
-}
-
-//------------------------------------------------------------------------------
-// void i2c_transmitinit(uint8_t slave_address, 
-//                               uint8_t prescale)
-//
-// Initializes USCI for master-transmit operation. 
-//
-// IN:   uint8_t slave_address   =>  Slave Address
-//       uint8_t prescale        =>  SCL clock adjustment 
-//------------------------------------------------------------------------------
-//static volatile uint8_t tx_byte_tot = 0;
-void i2c_transmitinit(uint8_t slave_address, uint8_t byte_ctr, uint8_t *tx_buf) {
-	// wait for bus to be free before setting MSTA (assuming we're in a multi-master environment or still sending something else)
-	while(i2c_busy()) /* wait */;
-
-	// assert: rx_byte_ctr <= 0
-	// assert: tx_byte_ctr <= 0
-	rx_buf_ptr = 0;
-	rx_byte_ctr = 0; // indicate that nothing is to be received
-	tx_byte_ctr = byte_ctr;
-	tx_buf_ptr  = tx_buf;
-
-	// clockdiv
-	//*I2CFDR = 0x20; // 150 khz for redbee econotag
-	
-	// assume being master, thus no addres has to be set
-	I2CCR = I2C_MEN | 
-#ifdef I2C_NON_BLOCKING
-		I2C_MIEN | 
-#endif
-		I2C_MSTA | I2C_MTX ; // start condition is triggered
-
-	// write out address of slave
-	I2CDR = (slave_address & 0x7f) <<1;
-
-#ifndef I2C_NON_BLOCKING
-	i2c_transmit();
-#endif	
-}
-
-/*----------------------------------------------------------------------------*/
-/*- blocking counterparts of interrupt hanlder function  ---------------------*/
-/*----------------------------------------------------------------------------*/
-#ifndef I2C_NON_BLOCKING
-/*----------------------------------------------------------------------------*/
-uint8_t i2c_receive() {
-	while(rx_byte_ctr > 0) {
-		// busy wait
-		while(!(I2CSR & I2C_MCF) || !(I2CSR & I2C_MIF)) /*wait*/;
-
-		if (rx_byte_ctr == 1) { // receiving next-to-last byte, thus turn off auto-ack for stop condition
-			I2CCR |= I2C_TXAK;
-		}
-		
-		if (I2CSR & I2C_MCF) {
-			i2c_recv_byte(); // read new byte
-		}
-
-		if (I2CSR & I2C_MAL) {
-			I2CSR &= ~I2C_MAL; // should be cleared in software
-			printf("*** ERROR I2C: Arbitration lost\n");
-			// Arbitration lost; ERROR?
-		}
-	}
-
-	while(!(I2CSR & I2C_MCF) || !(I2CSR & I2C_MIF)) /*wait*/;
-	if (I2CSR & I2C_RXAK) {
-		// NO acknoledge byte received
-		printf("*** ERROR I2C: No ack received\n");
-	}
-	if (I2CSR & I2C_MAL) {
-		I2CSR &= ~I2C_MAL; // should be cleared in software
-		printf("*** ERROR I2C: Arbitration lost\n");
-		// Arbitration lost; ERROR?
-	}
-
-	I2CCR &= ~I2C_MSTA; // stop condition
-}
-/*----------------------------------------------------------------------------*/
-void    i2c_transmit() {
-	while(tx_byte_ctr > 0) {
-		// busy wait
-		while(!(I2CSR & I2C_MCF) || !(I2CSR & I2C_MIF)) /*wait*/;
-
-		if (I2CSR & I2C_RXAK) {
-			// NO acknoledge byte received
-			printf("*** ERROR I2C: No ack received\n");
-		}
-		
-		if (I2CSR & I2C_MCF) {
-			i2c_send_byte();
-		}
-		
-		if (I2CSR & I2C_MAL) {
-			I2CSR &= ~I2C_MAL; // should be cleared in software
-			printf("*** ERROR I2C: Arbitration lost\n");
-			// Arbitration lost; ERROR?
-		}
-		
-		// clear MIF
-		I2CSR &= ~I2C_MIF;
-	}
-	
-	while(!(I2CSR & I2C_MCF) || !(I2CSR & I2C_MIF)) /*wait*/;
-	if (I2CSR & I2C_RXAK) {
-		// NO acknoledge byte received
-		printf("*** ERROR I2C: No ack received\n");
-	}
-	if (I2CSR & I2C_MAL) {
-		I2CSR &= ~I2C_MAL; // should be cleared in software
-		printf("*** ERROR I2C: Arbitration lost\n");
-		// Arbitration lost; ERROR?
-	}
-	
-	I2CCR &= ~I2C_MSTA; // stop condition
-}
-#endif
-/*----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------*/
-/* force SCL to become bus master when sda is still low (can occur after sys reset */
-/*----------------------------------------------------------------------------*/
-void i2c_force_reset(void) {
-	uint8_t tmp;
-	I2CCR = 0x20;
-	I2CCR = 0xA0;
-	tmp = I2CDR;
-	// return to module state Master?
-}
-
-
-/*----------------------------------------------------------------------------*/
-/*-  check if we're still in the process of sending something  ----------------*/
-/*----------------------------------------------------------------------------*/
-uint8_t i2c_transferred(void) {
-	return (!i2c_busy() && rx_byte_ctr == 0 && tx_byte_ctr == 0);
-}
-
-
-/*----------------------------------------------------------------------------*/
-/* check if there is communication in progress on the i2c bus.                */
-/*----------------------------------------------------------------------------*/
-uint8_t i2c_busy(void) {
-  return ((I2CSR & I2C_MBB) > 0); // bit 5 high = busy
-}
-
-
-/*----------------------------------------------------------------------------*/
-/* Setup ports and pins for I2C use. */
-/*----------------------------------------------------------------------------*/
-void i2c_enable(void) {
-	// enable clock signal to i2c module
-	SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
-	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
-
-//	enable_irq(I2C);
-    NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
-    NVICISER0 |= (1 << 24);	/* Enable interrupts from I2C0 module */
-
-	I2CFDR = 0x27; // mult = 1, div = 480, clk = 100kHz 
-	I2CADR = 0x02; // our slave address (not used; we're master)
-
-	// then enable i2c module
-	I2CCR |= I2C_MEN | // module-enable, auto-ack = on
-#ifdef I2C_NON_BLOCKING
-		I2C_MIEN | //module-interrupt-enable
-#endif
-		0;
-
-	// then switch gpio pins to i2c
-	PORTB_PCR0 = (PORTB_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
-	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
-}
-
-/*----------------------------------------------------------------------------*/
-/* Reset ports and pins for GPIO use. */
-/*----------------------------------------------------------------------------*/
-void i2c_disable(void) {
-	// all control values are set off
-	I2CCR = 0;
-	// clock is turned off
-	SIM_SCGC4 &= SIM_SCGC4_I2C0_MASK;
-
-	// then switch gpio pins to gpio - ignore
-
-//	disable_irq(I2C);
-    NVICISER0 |= (1 << 24);	/* Enable interrupts from I2C0 module */
-    NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
-}
-
-
-/*----------------------------------------------------------------------------*/
-/*-  i2c interrupt handler  --------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-#ifdef I2C_NON_BLOCKING
-void i2c_isr (void) {
-	uint8_t dummy;
-	if (I2CSR & I2C_MIF) { // interrupt is from i2c
-		if (I2CSR & I2C_MCF) { // one byte transferred/received. will be cleared automatically when I2CDR is written or I2CSR read
-			if (tx_buf_ptr != 0) { // we're sending
-				if (I2CSR & I2C_RXAK) {
-					// NO acknoledge byte received
-					printf("*** ERROR I2C: No ack received\n");
-				}
-
-				if (tx_byte_ctr > 0) { // tx
-					i2c_send_byte(); // set new byte, MCF is automatically cleared
-				} else {
-					I2CCR &= ~I2C_MSTA; // generate stop condition
-				}
-			} else { //if (rx_buf_ptr != 0) { // receive
-				if (rx_byte_ctr == 1) { // receiving next-to-last byte, thus turn off auto-ack for stop condition
-					I2CCR |= I2C_TXAK;
-				}
-				if (I2CCR & I2C_MTX) { // address byte was just sent
-					I2CCR &= ~I2C_MTX; // switch to receive mode
-					dummy = I2CDR; // dummy read to throw away the address from register
-					
-				} else if (rx_byte_ctr > 0) {
-					i2c_recv_byte(); // read new byte
-				} else {
-					I2CCR &= ~I2C_MSTA; // generate stop condition
-				}
-				
+	if (~(I2C0_S & I2C_S_RXAK_MASK)) {
+		/* Write out address of slave (TX) */
+		I2C0_D = (addr & 0x7f) << 1;
+		delay(1000);
+		while(i < len) {
+			/* Write next byte */
+			I2C0_D = buf[i];
+			delay(1000);
+			/* Check arbitration */
+			if (I2C0_S & I2C_S_ARBL_MASK) {
+				I2C0_S &= ~I2C_S_ARBL_MASK;
+				printf("*** ERROR I2C: Arbitration lost\n");
+				break;
 			}
+			i++;
 		}
-		if (I2CSR & I2C_MAL) {
-			I2CSR &= ~I2C_MAL; // should be cleared in software
-			printf("*** ERROR I2C: Arbitration lost\n");
-			// Arbitration lost; reset..
-			rx_byte_ctr = tx_byte_ctr = 0;
-			I2CCR &= ~I2C_MSTA; // generate stop condition
-		}
-		
-		// clear MIF
-		I2CSR |= I2C_MIF;
+	} else {
+		printf("*** ERROR I2C: No ack received\n");
 	}
+
+	I2C0_C1 &= ~I2C_C1_MST_MASK;	/* Stop condition */
+	I2C0_C1 &= ~I2C_C1_IICEN_MASK;	/* Disable module */
+	delay(1000);
 }
-#endif
+
+
+void i2c_rx(uint8_t addr, uint8_t len, uint8_t *buf)
+{
+	int i = 0;
+	int tmp;
+
+	/* Enable module, set write mode and generate start signal */
+	I2C0_C1 = I2C_C1_IICEN_MASK | I2C_C1_MST_MASK | I2C_C1_TX_MASK;
+
+	if (~(I2C0_S & I2C_S_RXAK_MASK)) {
+		/* Write out address of slave (RX) */
+		I2C0_D = (addr & 0x7f) << 1 | 0x1;
+		delay(1000);
+		tmp = I2C0_D;
+		/* Change to RX mode */
+		I2C0_C1 = I2C_C1_IICEN_MASK | I2C_C1_MST_MASK;
+		while(i < len) {
+			/* Receiving next-to-last byte, thus turn off auto-ack for stop condition */
+			if (i == len-1) {
+				I2C0_C1 |= I2C_C1_TXAK_MASK;
+			}
+			/* Read new byte */
+			buf[i] = I2C0_D;
+			delay(1000);
+			/* Check arbitration */
+			if ((I2C0_S & I2C_S_ARBL_MASK) && (i != len-1)) {
+				I2C0_S &= ~I2C_S_ARBL_MASK;
+				printf("*** ERROR I2C: Arbitration lost\n");
+				break;
+			}
+			i++;
+		}
+	} else {
+		printf("*** ERROR I2C: No ack received\n");
+	}
+
+	I2C0_C1 &= ~I2C_C1_MST_MASK;	/* Stop condition */
+	I2C0_C1 &= ~I2C_C1_IICEN_MASK;	/* Disable module */
+	delay(1000);
+}
+
+
+void i2c_isr (void)
+{
+}

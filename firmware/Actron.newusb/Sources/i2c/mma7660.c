@@ -44,9 +44,9 @@ extern void delay(int t);
 #define SPCNT	0x05
 #define INTSU	0x06
 #define MODE	0x07
-#define SR	0x08
+#define SR		0x08
 #define PDET	0x09
-#define PD	0x0A
+#define PD		0x0A
 
 
 static uint8_t buf[4];

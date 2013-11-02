@@ -360,6 +360,26 @@ void debug_init(void)
 }
 
 
+void i2c_init(void)
+{
+	SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	PORTB_PCR2 = (PORTC_PCR2 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTB_PCR3 = (PORTC_PCR3 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+
+#if 0
+    NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
+    NVICISER0 |= (1 << 24);	/* Enable interrupts from I2C0 module */
+#endif
+
+    I2C0_F = 0x27;	/* mult = 1, div = 480, clk = 100kHz */ 
+    I2C0_A1 = 0x02; /* our slave address (not used; we're master) */
+#if 0
+    I2C0_C1 = 0x80; /* module-enable, auto-ack = on */
+#endif
+}
+
+
 /*
  ** ===================================================================
  **     Interrupt handler : isr_default
