@@ -23,6 +23,9 @@ void bt_init(void);
 void psox_init(void);
 void i2c_init();
 
+void led_on(void);
+void led_off(void);
+void led_toggle(void);
 void delay(int t);
 int usb_printf(const char * format, ...);
 int uart_printf(const char * format, ...);
@@ -47,17 +50,17 @@ int main(void)
 	volatile int tmp = 0;
 
 	MCU_init();
-//	led_init();
+	led_init();
 //	debug_init();
 	usb_init();
 //	bt_init();
-//	psox_init();
+	psox_init();
 //	i2c_init();
 //	mma7660_init();
 	
 	TestApp_Init();
 //	BT_stack_init();
-//	afe44xx_init(4000);
+	afe44xx_init(4000);
 
 	for(;;) {
     	Watchdog_Reset();
@@ -68,15 +71,18 @@ int main(void)
 //    	temp = sht21_temp();
 //    	hum = sht21_humidity();
 
-//    	DisableInterrupts;
 //		uart_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
 //				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
 //				temp, hum, acc_x, acc_y, acc_z);
-//		EnableInterrupts;
+//    	tmp = afe44xx_read(LED2VAL);
+    	DisableInterrupts;
 		usb_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
 				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
 				temp, hum, acc_x, acc_y, acc_z);
-		delay(10000);
+		EnableInterrupts;
+
+		led_toggle();
+		delay(15000);
 	}
 
 	return 0;
@@ -93,7 +99,7 @@ void delay(int t)
 
 
 /* Must match virtual_com.h !!! */
-#define  DATA_BUFF_SIZE     (64)
+#define  DATA_BUFF_SIZE     (128)
 extern uint8_t g_curr_send_buf[DATA_BUFF_SIZE];
 extern uint8_t g_send_size;
 

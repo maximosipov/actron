@@ -175,16 +175,16 @@ void __init_hardware(void)
 void MCU_init(void)
 {
     /* Initialization of the SIM module */
-
 	/* PORTA_PCR4: ISF=0,MUX=7 */
 	PORTA_PCR4 = (uint32_t)((PORTA_PCR4 & (uint32_t)~0x01000000UL) | (uint32_t)0x0700UL);
-		  /* Initialization of the RCM module */
+
+	/* Initialization of the RCM module */
 	/* RCM_RPFW: RSTFLTSEL=0 */
 	RCM_RPFW &= (uint8_t)~(uint8_t)0x1FU;                           
 	/* RCM_RPFC: RSTFLTSS=0,RSTFLTSRW=0 */
 	RCM_RPFC &= (uint8_t)~(uint8_t)0x07U;                           
 	
-		/* Initialization of the PMC module */
+	/* Initialization of the PMC module */
 	/* PMC_LVDSC1: LVDACK=1,LVDIE=0,LVDRE=1,LVDV=0 */
 	PMC_LVDSC1 = (uint8_t)((PMC_LVDSC1 & (uint8_t)~(uint8_t)0x23U) | (uint8_t)0x50U);
 	/* PMC_LVDSC2: LVWACK=1,LVWIE=0,LVWV=0 */
@@ -203,7 +203,12 @@ void MCU_init(void)
 
 void led_init(void)
 {
-	/* 32.768kHz clock is is on pin 28 (PTB1), FTM2_CH0 (ALT3) */
+	/* OUT is on pin 50 (PTC5, ALT1) */
+	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;
+	PORTC_PCR5 = (PORTC_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR |= (1<<5);
+#if 0
+	/* 32.768kHz clock is on pin 28 (PTB1), FTM2_CH0 (ALT3) */
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 	SIM_SCGC6 |= SIM_SCGC6_FTM1_MASK;
 	/* configure FTM clock and mode (up-counting, EPWM) */
@@ -218,8 +223,23 @@ void led_init(void)
 	FTM1_MODE = 0;						/* All access disabled */
 	/* switch PORTB pin to FTM */
 	PORTB_PCR1 = (PORTB_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+#endif
 }
 
+void led_on(void)
+{
+	GPIOC_PCOR = (1<<5);
+}
+
+void led_off(void)
+{
+	GPIOC_PSOR = (1<<5);
+}
+
+void led_toggle(void)
+{
+	GPIOC_PTOR = (1<<5);
+}
 
 void usb_init(void)
 {
@@ -291,6 +311,8 @@ void bt_init(void)
 
 void psox_init(void)
 {
+	volatile int tmp = 0;
+
 	/* Enable modules */
 	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;
 	SIM_SCGC5 |= SIM_SCGC5_PORTD_MASK;
@@ -308,47 +330,47 @@ void psox_init(void)
 
 	/* Configure pins for digital signals and SPI */
 	/* CLKOUT (I) */
-	PORTC_PCR5 = (PORTC_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<5));
+	PORTC_PCR9 = (PORTC_PCR9 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR &= ~(1<<9);
 	/* _RESET (O) */
-	PORTC_PCR6 = (PORTC_PCR6 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOC_PDDR |= (1<<6);
+	PORTC_PCR10 = (PORTC_PCR10 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
+	GPIOC_PDDR |= (1<<10);
 	/* ADC_RDY (I, interrupt) */
-	PORTC_PCR7 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
-	GPIOC_PDDR &= ~(GPIOC_PDDR | (1<<7));
-	NVICICPR1 |= (1 << 10);				/* Clear any pending */
-	NVICISER1 |= (1 << 10);				/* Enable interrupts */
+	PORTC_PCR11 = PORT_PCR_MUX(0x01) | PORT_PCR_IRQC(0x9);
+	GPIOC_PDDR &= ~(1<<11);
+	NVICICPR2 |= (1 << 25);				/* Clear any pending */
+	NVICISER2 |= (1 << 25);				/* Enable interrupts */
 	/* PD_ALM (I) */
 	PORTD_PCR4 = (PORTD_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<4));
+	GPIOD_PDDR &= ~(1<<4);
 	/* LED_ALM (I) */
 	PORTD_PCR5 = (PORTD_PCR5 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<5));
+	GPIOD_PDDR &= ~(1<<5);
 	/* DIAG_END (I) */
 	PORTD_PCR6 = (PORTD_PCR6 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
-	GPIOD_PDDR &= ~(GPIOD_PDDR | (1<<6));
+	GPIOD_PDDR &= ~(1<<6);
 	/* _AFE_PDN (O) */
 	PORTD_PCR7 = (PORTD_PCR7 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x01);
 	GPIOD_PDDR |= (1<<7);
 
-	/* 8MHz clock is is on pin 21 (PTA4), FTM0_CH1 (ALT3) */
+	/* 8MHz clock is is on pin 49 (PTC4), FTM0_CH3 (ALT4) */
 	SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK;
 	SIM_SCGC6 |= SIM_SCGC6_FTM0_MASK;
 	/* configure FTM clock and mode (up-counting, EPWM) */
 	FTM0_SC = (0x1 << 3) | (0x0);		/* Up-counting, 48MHz */
 	FTM0_MODE = (0x1 << 2) | (0x1);		/* All access enabled */
 	FTM0_CONF = (0x3 << 6);				/* Timer active in BDM mode */
-	FTM0_C1SC = (0x1 << 5) | (0x1 << 2);/* EPWM */
+	FTM0_C3SC = (0x1 << 5) | (0x1 << 2);/* EPWM */
 	FTM0_CNTIN = 0;						/* Count from 0 */
 	FTM0_CNT = 0;						/* Load counter */
 	FTM0_MOD = 5;						/* Counter to get to 8MHz */
-	FTM0_C1V = 2;						/* 50% duty cycle */
+	FTM0_C3V = 2;						/* 50% duty cycle */
 	FTM0_MODE = 0;						/* All access disabled */
-	PORTA_PCR4 = (PORTA_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x03);
+	PORTC_PCR4 = (PORTC_PCR4 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x04);
 
 	/* Take chip out of reset */
 	GPIOD_PDOR |= (1<<7);
-	GPIOC_PDOR |= (1<<6);
+	GPIOC_PDOR |= (1<<10);
 
 	delay(1000);
 }
@@ -545,7 +567,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 102 (0x00000198) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 103 (0x0000019C) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 104 (0x000001A0) (prior: -) */
-   (tIsrFunc)&UNASSIGNED_ISR,                              /* 105 (0x000001A4) (prior: -) */
+   (tIsrFunc)&afe44xx_isr,                              /* 105 (0x000001A4) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 106 (0x000001A8) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 107 (0x000001AC) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 108 (0x000001B0) (prior: -) */

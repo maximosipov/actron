@@ -142,7 +142,7 @@ void afe44xx_isr(void) {
 	afe44xx_data.count++;
 
 	/* Clear any pending */
-	PORTC_PCR7 |= PORT_PCR_ISF_MASK;
-	NVICICPR1 |= (1 << 10);
+	PORTC_PCR11 |= PORT_PCR_ISF_MASK;
+	NVICICPR2 |= (1 << 25);
 	EnableInterrupts;
 }
