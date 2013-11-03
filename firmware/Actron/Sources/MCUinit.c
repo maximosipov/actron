@@ -390,8 +390,8 @@ void i2c_init(void)
 {
 	SIM_SCGC4 |= SIM_SCGC4_I2C0_MASK;
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
-	PORTB_PCR2 = (PORTC_PCR2 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
-	PORTB_PCR3 = (PORTC_PCR3 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTB_PCR0 = (PORTC_PCR0 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
+	PORTB_PCR1 = (PORTC_PCR1 & ~PORT_PCR_MUX_MASK) | PORT_PCR_MUX(0x02);
 
 #if 0
     NVICICPR0 |= (1 << 24);	/* Clear any pending interrupts on I2C0 */
@@ -403,6 +403,9 @@ void i2c_init(void)
 #if 0
     I2C0_C1 = 0x80; /* module-enable, auto-ack = on */
 #endif
+
+    /* For for about 15ms before the SHT21 can be used */
+    delay(30000);
 }
 
 

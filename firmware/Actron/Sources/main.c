@@ -34,11 +34,11 @@ extern void BT_stack_init(void);
 extern void BT_stack_task(void);
 
 /* Sensor measurements, updated by ??? */
-volatile uint32_t temp = 0;
-volatile uint32_t hum = 0;
-volatile uint32_t acc_x = 0;
-volatile uint32_t acc_y = 0;
-volatile uint32_t acc_z = 0;
+volatile int temp = 0;
+volatile int hum = 0;
+volatile int acc_x = 0;
+volatile int acc_y = 0;
+volatile int acc_z = 0;
 
 
 /* AFE44xx measurements, updated by AFE ISR */
@@ -48,6 +48,7 @@ extern volatile afe44xx_data_t afe44xx_data;
 int main(void)
 {
 	volatile int tmp = 0;
+	int t1, t2, h1, h2;
 
 	MCU_init();
 	led_init();
@@ -55,7 +56,7 @@ int main(void)
 	usb_init();
 //	bt_init();
 	psox_init();
-//	i2c_init();
+	i2c_init();
 //	mma7660_init();
 	
 	TestApp_Init();
@@ -68,17 +69,17 @@ int main(void)
 //		BT_stack_task();
 
 //    	mma7760_acc(&acc_x, &acc_y, &acc_z);
-//    	temp = sht21_temp();
-//    	hum = sht21_humidity();
+    	temp = sht21_temp();
+    	hum = sht21_humidity();
 
-//		uart_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
-//				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
-//				temp, hum, acc_x, acc_y, acc_z);
-//    	tmp = afe44xx_read(LED2VAL);
     	DisableInterrupts;
-		usb_printf("%i,%i,%i,%i,%i,%i,%i,%i\r\n",
+    	t1 = temp/100;
+    	t2 = temp%100;
+    	h1 = hum/100;
+    	h2 = hum%100;
+		usb_printf("%i,%i,%i,%i.%i,%i.%i,%i,%i,%i\r\n",
 				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
-				temp, hum, acc_x, acc_y, acc_z);
+				t1, t2, h1,h2, acc_x, acc_y, acc_z);
 		EnableInterrupts;
 
 		led_toggle();
@@ -107,12 +108,10 @@ int usb_printf(const char * format, ...)
 {
 	va_list va;
 	va_start(va, format);
-	if (g_send_size == 0) {
-		g_send_size += (uint8_t)snprintf(
-			(char*)g_curr_send_buf,
-			DATA_BUFF_SIZE - g_send_size,
-			format, va);
-	}
+	g_send_size = (uint8_t)vsnprintf(
+				(char*)g_curr_send_buf,
+				DATA_BUFF_SIZE,
+				format, va);
 	va_end(va);
 }
 
