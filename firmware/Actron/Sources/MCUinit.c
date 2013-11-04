@@ -409,6 +409,17 @@ void i2c_init(void)
 }
 
 
+void pit0_init(void)
+{
+	SIM_SCGC6 |= SIM_SCGC6_PIT_MASK;
+	NVICICPR2 |= (1 << 4);			/* Clear any pending */
+	NVICISER2 |= (1 << 4);			/* Enable interrupts */
+	PIT_MCR = PIT_MCR_FRZ_MASK;		/* enable module, stop timers in debug mode */
+	PIT_LDVAL0 = 48000000 / 10;		/* Initialize timer */
+	PIT_TCTRL0 |= PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK;
+}
+
+
 /*
 ** ===================================================================
 **     Interrupt handler : isr_default
@@ -549,7 +560,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 81 (0x00000144) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 82 (0x00000148) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 83 (0x0000014C) (prior: -) */
-   (tIsrFunc)&UNASSIGNED_ISR,                              /* 84 (0x00000150) (prior: -) */
+   (tIsrFunc)&pit0_isr,                              /* 84 (0x00000150) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 85 (0x00000154) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 86 (0x00000158) (prior: -) */
    (tIsrFunc)&UNASSIGNED_ISR,                              /* 87 (0x0000015C) (prior: -) */

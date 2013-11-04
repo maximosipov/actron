@@ -31,7 +31,17 @@
 #ifndef __SHT21_H__
 #define __SHT21_H__
 
-int sht21_temp(void);
-int sht21_humidity(void);
+/* SHT21 results */
+typedef struct {
+	int count;
+	int temp;
+	int hum;
+} sht21_data_t;
+
+
+void sht21_temp_req(void);
+int sht21_temp_resp(void);
+void sht21_hum_req(void);
+int sht21_hum_resp(void);
 
 #endif /* __SHT21_H__ */

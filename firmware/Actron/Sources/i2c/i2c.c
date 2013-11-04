@@ -2,9 +2,16 @@
  * Copyright (c) 2013, Maxim Osipov <maxim.osipov@gmail.com>
  */
 
+#include "derivative.h"
+#include "hidef.h"
 #include <stdio.h>
 #include "i2c.h"
+#include "sht21.h"
 
+/* SHT21 measurements, updated by PIT0 ISR */
+extern volatile sht21_data_t sht21_data;
+
+volatile int pit0_step = 0;
 
 void i2c_tx(uint8_t addr, uint8_t len, uint8_t *buf)
 {
@@ -86,4 +93,38 @@ void i2c_rx(uint8_t addr, uint8_t len, uint8_t *buf)
 
 void i2c_isr (void)
 {
+}
+
+/* 100ms ISR to schedule I2C transfers */
+void pit0_isr(void)
+{
+	DisableInterrupts;
+
+	/* Data read pipeline */
+	switch (pit0_step) {
+	case 0:
+		sht21_temp_req();
+		pit0_step = 1;
+		break;
+	case 1:
+		sht21_data.temp = sht21_temp_resp();
+		pit0_step = 2;
+		break;
+	case 2:
+		sht21_hum_req();
+		pit0_step = 3;
+		break;
+	case 3:
+		sht21_data.hum = sht21_hum_resp();
+		pit0_step = 0;
+		sht21_data.count += 1;
+		break;
+	default:
+		pit0_step = 0;
+		break;
+	}
+
+	/* Clear any pending */
+    PIT_TFLG0 |= PIT_TFLG_TIF_MASK;
+	EnableInterrupts;
 }

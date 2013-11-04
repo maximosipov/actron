@@ -8,20 +8,22 @@
 
 extern void delay(int t);
 
-static uint8_t buf[16];
+volatile sht21_data_t sht21_data = {0, 0, 0};
 
-int sht21_temp(void)
+static uint8_t buf[4];
+
+void sht21_temp_req(void)
+{
+  buf[0] = 0xf3;
+  i2c_tx(0x40, 1, buf);
+}
+
+
+int sht21_temp_resp(void)
 {
   int val;
 
-  buf[0] = 0xf3;
-  i2c_tx(0x40, 1, buf);
-
-  /* Wait for measurement about 85ms */
-  delay(150000);
-
   i2c_rx(0x40, 3, buf);
-
   val = (int)(buf[1]<<8 | buf[2]);
 
   /* return temp * 100 (0.01 deg accuracy) */
@@ -29,18 +31,18 @@ int sht21_temp(void)
 }
 
 
-int sht21_humidity(void)
+void sht21_hum_req(void)
+{
+  buf[0] = 0xf5;
+  i2c_tx(0x40, 1, buf);
+}
+
+
+int sht21_hum_resp(void)
 {
   int val;
 
-  buf[0] = 0xf5;
-  i2c_tx(0x40, 1, buf);
-
-  /* Wait for measurement about 85ms */
-  delay(150000);
-
   i2c_rx(0x40, 3, buf);
-
   val = (int)(buf[1]<<8 | buf[2]);
 
   /* return relative humidity * 100 (0.04 % accuracy) */

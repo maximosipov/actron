@@ -34,20 +34,21 @@ extern void BT_stack_init(void);
 extern void BT_stack_task(void);
 
 /* Sensor measurements, updated by ??? */
-volatile int temp = 0;
-volatile int hum = 0;
 volatile int acc_x = 0;
 volatile int acc_y = 0;
 volatile int acc_z = 0;
 
-
 /* AFE44xx measurements, updated by AFE ISR */
 extern volatile afe44xx_data_t afe44xx_data;
+
+/* SHT21 measurements, updated by PIT0 ISR */
+extern volatile sht21_data_t sht21_data;
 
 
 int main(void)
 {
 	volatile int tmp = 0;
+	int loop = 0;
 	int t1, t2, h1, h2;
 
 	MCU_init();
@@ -57,6 +58,7 @@ int main(void)
 //	bt_init();
 	psox_init();
 	i2c_init();
+	pit0_init();
 //	mma7660_init();
 	
 	TestApp_Init();
@@ -67,23 +69,23 @@ int main(void)
     	Watchdog_Reset();
     	TestApp_Task();
 //		BT_stack_task();
-
 //    	mma7760_acc(&acc_x, &acc_y, &acc_z);
-    	temp = sht21_temp();
-    	hum = sht21_humidity();
 
-    	DisableInterrupts;
-    	t1 = temp/100;
-    	t2 = temp%100;
-    	h1 = hum/100;
-    	h2 = hum%100;
-		usb_printf("%i,%i,%i,%i.%i,%i.%i,%i,%i,%i\r\n",
-				afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
-				t1, t2, h1,h2, acc_x, acc_y, acc_z);
-		EnableInterrupts;
-
-		led_toggle();
-		delay(15000);
+    	if (loop >= 1000) {
+    		loop = 0;
+			led_toggle();
+			DisableInterrupts;
+			t1 = sht21_data.temp / 100;
+			t2 = abs(sht21_data.temp % 100);
+			h1 = sht21_data.hum / 100;
+			h2 = abs(sht21_data.hum % 100);
+			usb_printf("%i,%i,%i,%i.%i,%i.%i,%i,%i,%i\r\n",
+					afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
+					t1, t2, h1, h2, acc_x, acc_y, acc_z);
+			EnableInterrupts;
+    	} else {
+    		loop += 1;
+    	}
 	}
 
 	return 0;
