@@ -22,7 +22,7 @@ function dataout = dataif(s, datain)
     % read in the buffered input data
     while s.BytesAvailable > 0,
         new_recs = new_recs + 1;
-        datatmp = fscanf(s, '%i,%i,%i,%f,%f,%i,%i,%i\n');
+        datatmp = fscanf(s, '%i,%i,%i,%f,%f,%f,%f,%f\n');
         if length(datatmp) == size(dataout,2),
             dataout(new_recs,:) = datatmp;
         else

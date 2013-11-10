@@ -72,6 +72,7 @@ while 1,
     red_raw = meamon.monitor.data(:,3);
     temp_raw = meamon.monitor.data(:,4);
     hum_raw = meamon.monitor.data(:,5);
+    acc_raw = meamon.monitor.data(:,6:8);
     % plot all data for debug purpose
     semilogy(hs.axes_data, amb_raw, 'g');
     hold(hs.axes_data, 'on');
@@ -91,13 +92,14 @@ while 1,
     red = red_raw(frame_start:frame_end);
     temp = temp_raw(frame_start:frame_end);
     hum = hum_raw(frame_start:frame_end);
+    acc = acc_raw(frame_start:frame_end, :);
     % Motion detection
     motion = detect_motion(amb, ir, red, meamon);
-    plot(hs.axes_motion, motion, 'g');
-    ylim(hs.axes_motion, [0 100]);
-    xlim(hs.axes_motion, [1 length(motion)]);
-    set( hs.text_motion, 'String',...
-        ['Motion: ',int2str(motion(length(motion))),' %'] );
+%     plot(hs.axes_motion, motion, 'g');
+%     ylim(hs.axes_motion, [0 100]);
+%     xlim(hs.axes_motion, [1 length(motion)]);
+%     set( hs.text_motion, 'String',...
+%         ['Motion: ',int2str(motion(length(motion))),' %'] );
     % Pulse detection
     [pulse, raw, peaks] = detect_pulse(amb, ir, red, motion, meamon);
     if isnan(pulse)
@@ -125,7 +127,7 @@ while 1,
     end
     % Temperature
     plot(hs.axes_temp, temp, 'r');
-    ylim(hs.axes_temp, [-50 50]);
+    ylim(hs.axes_temp, [0 40]);
     xlim(hs.axes_temp, [1 length(temp)]);
     set(hs.text_temp, 'String',...
         ['Temperature: ', num2str(temp(length(temp)), '%g'), ' C'] );
@@ -135,6 +137,12 @@ while 1,
     xlim(hs.axes_hum, [1 length(hum)]);
     set(hs.text_hum, 'String',...
         ['Humidity: ', num2str(hum(length(hum)), '%g'), ' %'] );
+    % Acceleration
+    plot(hs.axes_motion, acc);
+    ylim(hs.axes_motion, [-3 3]);
+    xlim(hs.axes_motion, [1 length(acc)]);
+    set(hs.text_motion, 'String',...
+        ['Acceleration: ', num2str((sqrt(sum(acc(length(acc)).^2))), '%g'), ' g'] );
 end
 
 
