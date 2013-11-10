@@ -28,10 +28,20 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __MPL115A2_H__
-#define __MPL115A2_H__
+#ifndef __MMA7660_H__
+#define __MMA7660_H__
+
+/* MMA7660 results */
+typedef struct {
+	int count;
+	int x;
+	int y;
+	int z;
+} mma7660_data_t;
+
 
 extern void mma7660_init(void);
-extern void mma7660_acc(int *x, int *y, int *z);
+extern void mma7660_acc_req(void);
+extern void mma7660_acc_resp(void);
 
-#endif /* __MPL115A2_H__ */
+#endif /* __MMA7660_H__ */

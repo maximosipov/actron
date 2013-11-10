@@ -7,9 +7,11 @@
 #include <stdio.h>
 #include "i2c.h"
 #include "sht21.h"
+#include "mma7660.h"
 
-/* SHT21 measurements, updated by PIT0 ISR */
+/* Sensor measurements, updated by PIT0 ISR */
 extern volatile sht21_data_t sht21_data;
+extern volatile mma7660_data_t mma7660_data;
 
 volatile int pit0_step = 0;
 
@@ -87,6 +89,7 @@ void i2c_rx(uint8_t addr, uint8_t len, uint8_t *buf)
 
 	I2C0_C1 &= ~I2C_C1_MST_MASK;	/* Stop condition */
 	delay(100);
+	buf[i] = I2C0_D;
 	I2C0_C1 &= ~I2C_C1_IICEN_MASK;	/* Disable module */
 }
 
@@ -116,8 +119,17 @@ void pit0_isr(void)
 		break;
 	case 3:
 		sht21_data.hum = sht21_hum_resp();
-		pit0_step = 0;
+		pit0_step = 4;
 		sht21_data.count += 1;
+		break;
+	case 4:
+		mma7660_acc_req();
+		pit0_step = 5;
+		break;
+	case 5:
+		mma7660_acc_resp();
+		pit0_step = 0;
+		mma7660_data.count += 1;
 		break;
 	default:
 		pit0_step = 0;

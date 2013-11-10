@@ -10,7 +10,7 @@ extern void delay(int t);
 
 volatile sht21_data_t sht21_data = {0, 0, 0};
 
-static uint8_t buf[4];
+static uint8_t buf[8];
 
 void sht21_temp_req(void)
 {

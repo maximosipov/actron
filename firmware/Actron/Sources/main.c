@@ -33,16 +33,14 @@ int uart_printf(const char * format, ...);
 extern void BT_stack_init(void);
 extern void BT_stack_task(void);
 
-/* Sensor measurements, updated by ??? */
-volatile int acc_x = 0;
-volatile int acc_y = 0;
-volatile int acc_z = 0;
-
 /* AFE44xx measurements, updated by AFE ISR */
 extern volatile afe44xx_data_t afe44xx_data;
 
 /* SHT21 measurements, updated by PIT0 ISR */
 extern volatile sht21_data_t sht21_data;
+
+/* MMA7760 measurements, updated by PIT0 ISR */
+extern volatile mma7660_data_t mma7660_data;
 
 
 int main(void)
@@ -50,6 +48,7 @@ int main(void)
 	volatile int tmp = 0;
 	int loop = 0;
 	int t1, t2, h1, h2;
+	int x1, x2, y1, y2, z1, z2;
 
 	MCU_init();
 	led_init();
@@ -59,7 +58,7 @@ int main(void)
 	psox_init();
 	i2c_init();
 	pit0_init();
-//	mma7660_init();
+	mma7660_init();
 	
 	TestApp_Init();
 //	BT_stack_init();
@@ -69,19 +68,28 @@ int main(void)
     	Watchdog_Reset();
     	TestApp_Task();
 //		BT_stack_task();
-//    	mma7760_acc(&acc_x, &acc_y, &acc_z);
 
     	if (loop >= 1000) {
     		loop = 0;
 			led_toggle();
 			DisableInterrupts;
+			/* Prepare SHT21 data */
 			t1 = sht21_data.temp / 100;
 			t2 = abs(sht21_data.temp % 100);
 			h1 = sht21_data.hum / 100;
 			h2 = abs(sht21_data.hum % 100);
-			usb_printf("%i,%i,%i,%i.%i,%i.%i,%i,%i,%i\r\n",
+			/* Prepare MMA7660 data */
+			x1 = mma7660_data.x / 98;
+			x2 = abs(mma7660_data.x % 98);
+			y1 = mma7660_data.y / 98;
+			y2 = abs(mma7660_data.y % 98);
+			z1 = mma7660_data.z / 98;
+			z2 = abs(mma7660_data.z % 98);
+			/* Print */
+			usb_printf("%i,%i,%i,%i.%i,%i.%i,%i.%i,%i.%i,%i.%i\r\n",
 					afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
-					t1, t2, h1, h2, acc_x, acc_y, acc_z);
+					t1, t2, h1, h2,
+					x1, x2, y1, y2, z1, z2);
 			EnableInterrupts;
     	} else {
     		loop += 1;

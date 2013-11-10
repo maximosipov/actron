@@ -48,62 +48,55 @@ extern void delay(int t);
 #define PDET	0x09
 #define PD		0x0A
 
+volatile mma7660_data_t mma7660_data = {0, 0, 0, 0};
 
-static uint8_t buf[4];
+static uint8_t buf[8];
 
 void mma7660_init(void)
 {
-  int32_t val;
-
-  i2c_enable();
-
   buf[0] = INTSU;
   buf[1] = 0x00;
-  i2c_transmitinit(ADDR, 2, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(ADDR, 2, buf);
+  delay(1000);
 
   buf[0] = MODE;
   buf[1] = 0x01;
-  i2c_transmitinit(ADDR, 2, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(ADDR, 2, buf);
+  delay(1000);
 
   buf[0] = SR;
   buf[1] = 0x1F;
-  i2c_transmitinit(ADDR, 2, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(ADDR, 2, buf);
+  delay(1000);
 
   buf[0] = PDET;
   buf[1] = 0xFF;
-  i2c_transmitinit(ADDR, 2, buf);
-  while(!i2c_transferred()) ;
+  i2c_tx(ADDR, 2, buf);
+  delay(1000);
 
   buf[0] = PD;
   buf[1] = 0xFF;
-  i2c_transmitinit(ADDR, 2, buf);
-  while(!i2c_transferred()) ;
-
-  i2c_disable();
+  i2c_tx(ADDR, 2, buf);
+  delay(1000);
 }
 
-void mma7660_acc(int *x, int *y, int *z)
+void mma7660_acc_req(void)
 {
-  int tmp;
-  i2c_enable();
-
   /* Read data */
   buf[0] = XOUT;
-  i2c_transmitinit(ADDR, 1, buf);
-  while(!i2c_transferred()) ;
-  i2c_receiveinit(ADDR, 3, buf);
-  while(!i2c_transferred()) ;
-
-  i2c_disable();
-
-  tmp = (signed char)((buf[0] & 0x20) ? (buf[0] | 0xC0) : (buf[0] & 0x3F));
-  *x = (tmp*150)/32;
-  tmp = (signed char)((buf[1] & 0x20) ? (buf[1] | 0xC0) : (buf[1] & 0x3F));
-  *y = (tmp*150)/32;
-  tmp = (signed char)((buf[2] & 0x20) ? (buf[2] | 0xC0) : (buf[2] & 0x3F));
-  *z = (tmp*150)/32;
+  i2c_tx(ADDR, 1, buf);
 }
 
+void mma7660_acc_resp(void)
+{
+  int tmp;
+
+  i2c_rx(ADDR, 3, buf);
+
+  tmp = (signed char)((buf[1] & 0x20) ? (buf[1] | 0xC0) : (buf[1] & 0x3F));
+  mma7660_data.x = (tmp*150)/32;
+  tmp = (signed char)((buf[2] & 0x20) ? (buf[2] | 0xC0) : (buf[2] & 0x3F));
+  mma7660_data.y = (tmp*150)/32;
+  tmp = (signed char)((buf[3] & 0x20) ? (buf[3] | 0xC0) : (buf[3] & 0x3F));
+  mma7660_data.z = (tmp*150)/32;
+}
