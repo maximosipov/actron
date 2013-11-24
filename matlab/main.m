@@ -55,7 +55,7 @@ meamon.statistics.heigth = ones(meamon.statistics.time, 1)*...
 
 %=========================================================================
 % Initialization
-s = serial('/dev/ttyS999', 'BaudRate', 115200, 'Terminator','CR/LF');
+s = serial('/dev/ttyS000', 'BaudRate', 115200, 'Terminator','CR/LF');
 fopen(s);
 c = onCleanup(@()fclose(s));
 s.ReadAsyncMode = 'continuous';

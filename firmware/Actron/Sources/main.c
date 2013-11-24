@@ -14,6 +14,7 @@
 #include "mma7660.h"
 #include "usb_cdc.h"
 #include "afe44xx.h"
+#include "lmx9838.h"
 
 void MCU_init(void);
 void debug_init(void);
@@ -27,11 +28,9 @@ void led_on(void);
 void led_off(void);
 void led_toggle(void);
 void delay(int t);
-int usb_printf(const char * format, ...);
-int uart_printf(const char * format, ...);
 
-extern void BT_stack_init(void);
-extern void BT_stack_task(void);
+int usb_printf(const char * format, ...);
+int bt_printf(const char * format, ...);
 
 /* AFE44xx measurements, updated by AFE ISR */
 extern volatile afe44xx_data_t afe44xx_data;
@@ -54,22 +53,23 @@ int main(void)
 	led_init();
 //	debug_init();
 	usb_init();
-//	bt_init();
+	bt_init();
 	psox_init();
 	i2c_init();
 	pit0_init();
 	mma7660_init();
 	
 	TestApp_Init();
-//	BT_stack_init();
 	afe44xx_init(4000);
+	lmx9838_init();
 
 	for(;;) {
     	Watchdog_Reset();
     	TestApp_Task();
-//		BT_stack_task();
+		lmx9838_task();
 
-    	if (loop >= 1000) {
+    	if (loop >= 100000) {
+//    		uart0_tx(1, "Z");
     		loop = 0;
 			led_toggle();
 			DisableInterrupts;
@@ -87,6 +87,10 @@ int main(void)
 			z2 = abs(mma7660_data.z % 98);
 			/* Print */
 			usb_printf("%i,%i,%i,%i.%i,%i.%i,%i.%i,%i.%i,%i.%i\r\n",
+					afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
+					t1, t2, h1, h2,
+					x1, x2, y1, y2, z1, z2);
+			bt_printf("%i,%i,%i,%i.%i,%i.%i,%i.%i,%i.%i,%i.%i\r\n",
 					afe44xx_data.red_amb, afe44xx_data.red, afe44xx_data.ir,
 					t1, t2, h1, h2,
 					x1, x2, y1, y2, z1, z2);
@@ -113,7 +117,6 @@ void delay(int t)
 #define  DATA_BUFF_SIZE     (128)
 extern uint8_t g_curr_send_buf[DATA_BUFF_SIZE];
 extern uint8_t g_send_size;
-
 int usb_printf(const char * format, ...)
 {
 	va_list va;
@@ -125,22 +128,20 @@ int usb_printf(const char * format, ...)
 	va_end(va);
 }
 
-#if 0
-int count;
-int uart_printf(const char * format, ...)
+
+/* Must match lmx9838.c !!! */
+extern uint8_t bt_tx_buf[128];
+extern uint16_t bt_tx_len;
+int bt_printf(const char * format, ...)
 {
 	va_list va;
 	va_start(va, format);
-	send_size = (uint8_t)vsnprintf(
-				(char*)send_buf,
-				SEND_SIZE,
+	if (!lmx9838_connected())
+		return;
+	bt_tx_len = (uint8_t)vsnprintf(
+				(char*)bt_tx_buf,
+				128,
 				format, va);
-	count = 0;
-	while (count < send_size) {
-		UART1_D = send_buf[count];
-		count++;
-		while (!(UART1_S1 & UART_S1_TC_MASK));
-	}
+	uart0_tx_start();
 	va_end(va);
 }
-#endif
